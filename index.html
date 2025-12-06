@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>GalaBau Victor</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="Galabau-Victor-Logo.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="Galabau-Victor-Logo.png">
-    <link rel="shortcut icon" href="Galabau-Victor-Logo.png">
+    <meta name="theme-color" content="#2d3436">
+    <meta name="apple-mobile-web-app-title" content="GalaBau">
+    
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="shortcut icon" href="icon.png">
+
+    <title>GalaBau Victor OS</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -225,11 +230,13 @@
 
         <div class="avizier-section">
             <div class="avizier-label" id="avizier-label-text">📋 DISPOZIȚII VICTOR</div>
-            <div id="teams-container"></div>
+            <div id="teams-container">
+                </div>
         </div>
 
         <div id="setup-panel" class="glass-panel">
             <h3 style="margin:0 0 15px 0; text-align:center; color:#333;">Selectează Numele:</h3>
+            
             <div class="worker-grid" id="main-worker-list"></div>
 
             <div class="loc-auto">
@@ -278,7 +285,7 @@
             <div class="admin-card">
                 <h4 style="margin:0 0 15px 0;">👥 Gestionează Echipa</h4>
                 <div style="display:flex; gap:5px; margin-bottom:15px;">
-                    <input type="text" id="new-worker-name" class="inp" placeholder="Nume nou (ex: Alex)" style="width:70%;">
+                    <input type="text" id="new-worker-name" class="inp" placeholder="Nume nou" style="width:70%;">
                     <button class="btn-add" onclick="addNewWorker()">Adaugă</button>
                 </div>
                 <div id="admin-worker-list-container"></div>
@@ -286,13 +293,27 @@
 
             <div class="admin-card">
                 <h4 style="margin:0 0 15px 0;">📝 Organizare & Avizier</h4>
+                
                 <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #eee;">
                     <label style="font-size:0.8rem; font-weight:bold;">Data Dispoziție (ex: 06 Dec):</label>
                     <input class="inp" type="text" id="avizier-date-input" placeholder="Scrie data...">
                 </div>
-                <div class="team-edit-row"><input class="inp" type="text" id="tm1-n" placeholder="Echipa 1"><input class="inp" type="text" id="tm1-l" placeholder="Locație"><input class="inp" type="text" id="tm1-t" placeholder="07:30"></div>
-                <div class="team-edit-row"><input class="inp" type="text" id="tm2-n" placeholder="Echipa 2"><input class="inp" type="text" id="tm2-l" placeholder="Locație"><input class="inp" type="text" id="tm2-t" placeholder="Ora"></div>
-                <div class="team-edit-row"><input class="inp" type="text" id="tm3-n" placeholder="Echipa 3"><input class="inp" type="text" id="tm3-l" placeholder="Locație"><input class="inp" type="text" id="tm3-t" placeholder="Ora"></div>
+
+                <div class="team-edit-row">
+                    <input class="inp" type="text" id="tm1-n" placeholder="Echipa 1">
+                    <input class="inp" type="text" id="tm1-l" placeholder="Locație">
+                    <input class="inp" type="text" id="tm1-t" placeholder="07:30">
+                </div>
+                <div class="team-edit-row">
+                    <input class="inp" type="text" id="tm2-n" placeholder="Echipa 2">
+                    <input class="inp" type="text" id="tm2-l" placeholder="Locație">
+                    <input class="inp" type="text" id="tm2-t" placeholder="Ora">
+                </div>
+                <div class="team-edit-row">
+                    <input class="inp" type="text" id="tm3-n" placeholder="Echipa 3">
+                    <input class="inp" type="text" id="tm3-l" placeholder="Locație">
+                    <input class="inp" type="text" id="tm3-t" placeholder="Ora">
+                </div>
                 <button onclick="saveTeams()" style="width:100%; background:var(--brand); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">Actualizează</button>
             </div>
 
@@ -303,12 +324,18 @@
             </div>
 
             <div class="admin-card">
+                
+                <div class="legend-box">
+                    <div class="legend-item"><div class="dot bg-green"></div> Muncă</div>
+                    <div class="legend-item"><div class="dot bg-yellow"></div> Pauză</div>
+                    <div class="legend-item"><div class="dot bg-red"></div> Eroare</div>
+                </div>
+
                 <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:15px;">
                     <span onclick="changeMonth(-1)" style="cursor:pointer; padding:5px;">◀</span>
                     <span id="cal-month">Luna</span>
                     <span onclick="changeMonth(1)" style="cursor:pointer; padding:5px;">▶</span>
                 </div>
-                
                 <div class="cal-grid">
                     <div class="cal-head">Lu</div><div class="cal-head">Ma</div><div class="cal-head">Mi</div>
                     <div class="cal-head">Jo</div><div class="cal-head">Vi</div><div class="cal-head">Sâ</div><div class="cal-head" style="color:var(--danger)">Du</div>
@@ -316,13 +343,6 @@
                 <div class="cal-grid" id="cal-body"></div>
                 
                 <div id="day-detail-box" style="margin-top:20px; border-top:2px solid #f4f4f4; padding-top:15px; display:none;">
-                    
-                    <div class="legend-box">
-                        <div class="legend-item"><div class="dot bg-green"></div> Muncă</div>
-                        <div class="legend-item"><div class="dot bg-yellow"></div> Pauză</div>
-                        <div class="legend-item"><div class="dot bg-red"></div> Eroare</div>
-                    </div>
-
                     <h4 id="detail-title" style="margin:0 0 10px 0; color:var(--brand);">Activitate</h4>
                     <div id="detail-list"></div>
                 </div>
@@ -343,6 +363,7 @@
     </div>
 
     <script>
+        // 1. CONFIGURARE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyCoWS4CDB-xATg3ZsWhuaBzVvjeCGrL4X4",
             authDomain: "galabau-victor.firebaseapp.com",
@@ -360,10 +381,11 @@
             window.db = db;
         } catch(e) { console.log(e); }
 
+        // 2. STATE
         let app = { user: null, startT: 0, isPaused: false, pauseStartT: 0, totalPause: 0, docId: null, locName: "GPS", photoBase64: null };
         let timerInt, mapInst, mapMarkers=[], viewDate=new Date();
 
-        // DIACRITIC REMOVER
+        // 3. DIACRITIC REMOVER
         function cleanText(str) {
             if(!str) return "";
             const map = {'ă':'a','â':'a','î':'i','ș':'s','ț':'t','Ă':'A','Â':'A','Î':'I','Ș':'S','Ț':'T'};
@@ -379,22 +401,27 @@
             rain: ["🌧️ Atenție la ploaie!", "☔ Aveți grijă la noroi!"]
         };
 
+        // STARTUP
         window.onload = () => {
             initClock();
             loadTeams();
-            loadWorkers(); // NOU: Incarca lista dinamica
-            
+            loadWorkers();
             const saved = localStorage.getItem('vt_v26');
             if(saved) {
                 const s = JSON.parse(saved);
                 const today = new Date().toLocaleDateString('ro-RO');
                 const sessionDay = new Date(s.startT).toLocaleDateString('ro-RO');
-                if(today !== sessionDay) forceClose(s);
-                else { app = s; restoreUI(); }
+                
+                if(today !== sessionDay) {
+                    forceClose(s);
+                } else {
+                    app = s; restoreUI();
+                }
             }
             setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 1500);
         };
 
+        // CLOCK
         function initClock() {
             setInterval(()=>{
                 const now = new Date();
@@ -412,11 +439,15 @@
                         document.getElementById('w-temp').innerText = t+"°";
                         
                         const h = new Date().getHours();
-                        let mainMsg = h < 11 ? msgs.m[0] : (h < 17 ? msgs.n[0] : msgs.e[0]);
+                        let mainMsg = "";
+                        if(h < 11) mainMsg = msgs.m[Math.floor(Math.random()*msgs.m.length)];
+                        else if(h < 17) mainMsg = msgs.n[Math.floor(Math.random()*msgs.n.length)];
+                        else mainMsg = msgs.e[Math.floor(Math.random()*msgs.e.length)];
+
                         let subMsg = "Vreme bună.";
-                        if(t < 5) subMsg = msgs.cold[0];
-                        else if(t > 28) subMsg = msgs.hot[0];
-                        else if(d.current_weather.weathercode > 50) subMsg = msgs.rain[0];
+                        if(t < 5) subMsg = msgs.cold[Math.floor(Math.random()*msgs.cold.length)];
+                        else if(t > 28) subMsg = msgs.hot[Math.floor(Math.random()*msgs.hot.length)];
+                        else if(d.current_weather.weathercode > 50) subMsg = msgs.rain[Math.floor(Math.random()*msgs.rain.length)];
 
                         document.getElementById('smart-greet').innerText = mainMsg;
                         document.getElementById('smart-sub').innerText = subMsg;
@@ -425,15 +456,14 @@
             }
         }
 
-        // --- MANAGEMENT ECHIPA (DYNAMIC WORKERS) ---
+        // --- MANAGEMENT WORKERS ---
         async function loadWorkers() {
             const doc = await window.db.collection('settings').doc('workers_v26').get();
-            let workers = ["Sandu", "Nicu", "Vadim", "Sorin", "Fani", "Ovidiu"]; // Default
+            let workers = ["Sandu", "Nicu", "Vadim", "Sorin", "Fani", "Ovidiu"]; 
             
             if(doc.exists && doc.data().list) {
                 workers = doc.data().list;
             } else {
-                // First time setup
                 window.db.collection('settings').doc('workers_v26').set({list: workers});
             }
             renderWorkerGrid(workers);
@@ -451,7 +481,7 @@
                     </div>`;
             });
         }
-
+        
         function renderAdminWorkerList(list) {
             const container = document.getElementById('admin-worker-list-container');
             container.innerHTML = "";
@@ -467,24 +497,21 @@
         async function addNewWorker() {
             const name = document.getElementById('new-worker-name').value;
             if(!name) return;
-            
             const doc = await window.db.collection('settings').doc('workers_v26').get();
             let list = doc.exists ? doc.data().list : [];
             list.push(name);
-            
-            await window.db.collection('settings').doc('workers_v26').update({list: list});
-            document.getElementById('new-worker-name').value = "";
-            loadWorkers(); // Refresh
+            await window.db.collection('settings').doc('workers_v26').set({list: list}, {merge:true});
+            document.getElementById('new-worker-name').value="";
+            loadWorkers();
             alert("Adăugat!");
         }
 
         async function deleteWorker(name) {
-            if(!confirm(`Ștergi pe ${name}?`)) return;
+            if(!confirm("Ștergi?")) return;
             const doc = await window.db.collection('settings').doc('workers_v26').get();
             let list = doc.data().list.filter(w => w !== name);
-            
             await window.db.collection('settings').doc('workers_v26').update({list: list});
-            loadWorkers(); // Refresh
+            loadWorkers();
         }
 
         // AVIZIER
@@ -819,4 +846,3 @@
     </script>
 </body>
 </html>
-
