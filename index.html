@@ -5,28 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#2d3436">
     <title>GalaBau Victor OS</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --brand: #009432;       /* Verde Smarald */
+            --brand: #009432;       
             --brand-dark: #1b5e20;
             --dark: #2f3640;
-            --bg-body: #f1f2f6;
             --white: #ffffff;
             --glass: rgba(255, 255, 255, 0.98);
-            --shadow: 0 8px 25px rgba(0,0,0,0.1);
+            --shadow: 0 5px 15px rgba(0,0,0,0.1);
             --danger: #c23616;
             --warning: #f1c40f;
+            --sunday-bg: #ffebee;
             --admin-bg: #2c3e50;
-            --sunday-bg: #fadbd8;   /* Culoare Gratar */
         }
 
         body {
@@ -38,146 +40,154 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Fundal întunecat pentru contrast */
-        .backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: -1;
-        }
+        .backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: -1; }
+        .app-container { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 90px; }
 
-        /* Container Principal cu Scroll */
-        .app-container {
-            flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 80px;
-        }
-
-        /* --- HEADER --- */
+        /* HEADER */
         .header-card {
             background: var(--glass); padding: 15px; border-radius: 20px;
             box-shadow: var(--shadow); margin-bottom: 15px; text-align: center;
             border-top: 5px solid var(--brand);
         }
-        .logo-img { height: 65px; margin-bottom: 5px; display: inline-block; }
-        .live-clock { font-size: 2rem; font-weight: 900; color: var(--dark); line-height: 1; }
-        .live-date { font-size: 0.85rem; font-weight: 700; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+        .logo-img { height: 75px; margin-bottom: 5px; display: inline-block; }
+        .live-clock { font-size: 2.2rem; font-weight: 900; color: var(--dark); line-height: 1; }
+        .live-date { font-size: 0.9rem; font-weight: 700; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
 
-        /* --- VREME --- */
+        /* VREME */
         .weather-card {
             background: linear-gradient(135deg, #11998e, #38ef7d);
             color: white; padding: 15px 20px; border-radius: 18px;
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 20px; box-shadow: var(--shadow); position: relative; overflow: hidden;
         }
-        .w-temp { font-size: 2.5rem; font-weight: 800; }
-        .w-msg { font-size: 1rem; font-weight: 700; }
-        .w-sub { font-size: 0.8rem; opacity: 0.9; }
+        .w-temp { font-size: 3rem; font-weight: 900; }
+        .w-msg { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
+        .w-sub { font-size: 0.8rem; opacity: 0.95; font-style: italic; }
 
-        /* --- AVIZIER (ECHIPE) --- */
+        /* AVIZIER */
         .avizier-section { margin-bottom: 25px; }
         .avizier-label { 
-            background: var(--brand); color: white; padding: 6px 15px; border-radius: 20px;
-            font-size: 0.8rem; font-weight: 800; display: inline-block; margin-bottom: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            background: var(--brand); color: white; padding: 8px 20px; border-radius: 20px;
+            font-size: 0.85rem; font-weight: 800; display: inline-block; margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-transform: uppercase;
         }
-        
         .team-display-card {
             background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px;
             border-left: 6px solid #ccc; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .team-display-card.t1 { border-left-color: #e74c3c; } /* Rosu */
-        .team-display-card.t2 { border-left-color: #3498db; } /* Albastru */
-        .team-display-card.t3 { border-left-color: #f1c40f; } /* Galben */
+        .team-display-card.t1 { border-left-color: #e74c3c; } 
+        .team-display-card.t2 { border-left-color: #3498db; } 
+        .team-display-card.t3 { border-left-color: #f1c40f; }
+        .td-name { font-weight: 800; font-size: 0.95rem; color: var(--dark); }
+        .td-loc { font-size: 0.85rem; color: #666; display: block; margin-top: 3px; }
+        .td-time { font-weight: 700; color: var(--brand); font-size: 0.9rem; }
 
-        .td-name { font-weight: 800; font-size: 1rem; color: var(--dark); }
-        .td-loc { font-size: 0.85rem; color: #666; display: block; margin-top: 2px; }
-        .td-time { font-weight: 700; color: var(--brand-dark); font-size: 0.9rem; }
-
-        /* --- ZONA SELECTIE --- */
-        .glass-panel {
-            background: var(--glass); border-radius: 24px; padding: 20px;
-            box-shadow: var(--shadow); margin-bottom: 20px;
-        }
+        /* PANELS */
+        .glass-panel { background: var(--glass); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        
+        /* WORKER GRID */
         .worker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .worker-item {
-            background: white; border: 2px solid transparent; border-radius: 12px;
-            padding: 12px 5px; text-align: center; cursor: pointer; transition: 0.2s;
+            background: white; border: 2px solid transparent; border-radius: 16px;
+            padding: 15px 5px; text-align: center; cursor: pointer; transition: 0.1s;
         }
         .worker-item.selected {
             border-color: var(--brand); background: #e8f5e9; transform: scale(1.05);
             box-shadow: 0 5px 15px rgba(0,148,50,0.2);
         }
-        .w-emoji { font-size: 2.8rem; display: block; margin-bottom: 5px; }
-        .w-label { font-weight: 700; font-size: 0.85rem; }
+        .w-emoji { font-size: 3rem; display: block; margin-bottom: 5px; line-height: 1; }
+        .w-label { font-weight: 800; font-size: 0.9rem; }
 
-        /* --- LOCATIE AUTOMATA --- */
+        /* LOCATIE */
         .loc-auto {
             background: white; border: 1px solid #ddd; border-radius: 12px; padding: 15px;
             margin-top: 20px; display: flex; align-items: center; gap: 10px;
         }
         .loc-txt { font-weight: 700; font-size: 0.9rem; color: #555; }
 
-        /* --- ZONA ACTIV (TIMER) --- */
+        /* ACTIVE TIMER */
         .active-panel {
             background: var(--glass); border-radius: 30px; padding: 40px 20px;
             text-align: center; margin-top: 20px; box-shadow: var(--shadow);
         }
-        .timer-val { font-size: 4rem; font-weight: 900; color: var(--brand-dark); line-height: 1; font-variant-numeric: tabular-nums; }
+        .timer-val { font-size: 4.5rem; font-weight: 900; color: var(--brand-dark); line-height: 1; font-variant-numeric: tabular-nums; }
         .status-badge {
             background: #dcedc8; color: #1b5e20; padding: 6px 15px; border-radius: 20px;
             font-weight: 800; font-size: 0.85rem; display: inline-block; margin-bottom: 15px;
         }
         .status-badge.paused { background: #fff3cd; color: #f39c12; }
 
-        /* --- BUTOANE --- */
+        /* BUTOANE */
         .btn {
-            width: 100%; padding: 18px; border: none; border-radius: 14px;
-            font-size: 1.1rem; font-weight: 800; color: white; cursor: pointer;
-            margin-top: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            width: 100%; padding: 20px; border: none; border-radius: 16px;
+            font-size: 1.2rem; font-weight: 800; color: white; cursor: pointer;
+            margin-top: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         }
         .btn-start { background: var(--brand); }
         .btn-stop { background: var(--danger); }
         .btn-pause { background: var(--warning); color: #333; }
-        
+        .btn-photo { background: white; color: #333; border: 2px dashed #ccc; font-size: 0.9rem; padding: 12px; display:flex; align-items:center; justify-content:center; gap:10px; border-radius: 12px; }
+        .btn-pdf { background: #c0392b; color: white; margin-top: 10px; font-size: 0.9rem; padding: 12px; border-radius: 8px; width: 100%; border:none; cursor:pointer;}
+        .btn-small-del { background: #c0392b; color: white; border:none; border-radius:5px; padding:2px 8px; font-size:0.7rem; cursor:pointer; }
+        .btn-add { background: var(--brand); color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 30%; font-weight:bold;}
+
         .admin-trigger {
             position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.8);
             color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; z-index: 100;
         }
 
-        /* --- ADMIN PANEL --- */
+        /* ADMIN PANEL */
         #admin-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #ecf0f1; z-index: 200; overflow-y: auto; display: none;
         }
         .admin-header {
-            background: var(--admin-bg); color: white; padding: 20px;
+            background: var(--brand); color: white; padding: 20px;
             display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index:10;
         }
-        .admin-card {
-            background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .team-edit-row { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 5px; margin-bottom: 10px; }
+        .admin-card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .team-edit-row { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 8px; margin-bottom: 10px; }
         .inp { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
 
-        /* --- CALENDAR ADMIN --- */
+        /* WORKER MANAGEMENT LIST */
+        .admin-worker-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; border-bottom: 1px solid #eee; font-weight: 600;
+        }
+
+        /* CALENDAR */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; margin-top: 10px; }
         .cal-head { font-size: 0.75rem; font-weight: 800; color: #7f8c8d; }
         .cal-day {
-            aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center;
             font-weight: 700; font-size: 0.85rem; cursor: pointer; background: white; border: 1px solid #e0e0e0;
         }
         .cal-day.sunday { background: var(--sunday-bg); color: #c0392b; border: 1px solid #e6b0aa; }
         .cal-day.has-data { background: #b9f6ca; color: #1b5e20; border: 2px solid var(--brand); }
+        .cal-day.error { border: 2px solid red; background: #ffebee; }
         .cal-day.today { border: 2px solid var(--dark); }
-        .cal-day.selected { background: var(--admin-bg); color: white; transform: scale(1.1); box-shadow: 0 4px 10px rgba(0,0,0,0.2); border:none; }
+        .cal-day.selected { transform: scale(1.1); box-shadow: 0 0 10px rgba(0,0,0,0.2); border: 2px solid var(--brand); }
 
-        /* Detalii Zi */
+        /* LEGENDA */
+        .legend-box { display: flex; gap: 10px; margin-bottom: 10px; background: #f4f6f8; padding: 10px; border-radius: 8px; justify-content: center;}
+        .legend-item { font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+
         .day-detail-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 0; border-bottom: 1px solid #eee;
         }
-        .stat-badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 5px; font-weight: bold; color: white; margin-left: 5px; }
+        .stat-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; font-weight: bold; color: white; margin-left: 5px; }
         .bg-green { background: #2ecc71; }
         .bg-yellow { background: #f1c40f; color: #333; }
+        .bg-red { background: #e74c3c; }
+
+        /* CONFIRM BOX */
+        .stop-confirm-box {
+            background: white; padding: 20px; border-radius: 15px; margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 1px solid #eee;
+        }
 
         .loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:999; display:flex; justify-content:center; align-items:center; flex-direction:column; }
         .hidden { display: none !important; }
@@ -191,7 +201,7 @@
 
     <div id="loader" class="loader">
         <img src="Galabau-Victor-Logo.png" style="width:120px; margin-bottom:20px;">
-        <div style="font-weight:bold; color:#777;">GalaBau OS v15</div>
+        <div style="font-weight:bold; color:#777; margin-top:10px;">Victor Tigoianu</div>
     </div>
 
     <div id="main-screen" class="app-container">
@@ -211,21 +221,13 @@
         </div>
 
         <div class="avizier-section">
-            <div class="avizier-label">📋 DISPOZIȚII VICTOR</div>
-            <div id="teams-container">
-                </div>
+            <div class="avizier-label" id="avizier-label-text">📋 DISPOZIȚII VICTOR</div>
+            <div id="teams-container"></div>
         </div>
 
         <div id="setup-panel" class="glass-panel">
             <h3 style="margin:0 0 15px 0; text-align:center; color:#333;">Selectează Numele:</h3>
-            <div class="worker-grid">
-                <div class="worker-item" onclick="selectUser(this, 'Sandu')"><span class="w-emoji">👷‍♂️</span><span class="w-label">Sandu</span></div>
-                <div class="worker-item" onclick="selectUser(this, 'Nicu')"><span class="w-emoji">🧱</span><span class="w-label">Nicu</span></div>
-                <div class="worker-item" onclick="selectUser(this, 'Vadim')"><span class="w-emoji">🚜</span><span class="w-label">Vadim</span></div>
-                <div class="worker-item" onclick="selectUser(this, 'Sorin')"><span class="w-emoji">⚒️</span><span class="w-label">Sorin</span></div>
-                <div class="worker-item" onclick="selectUser(this, 'Fani')"><span class="w-emoji">🪚</span><span class="w-label">Fani</span></div>
-                <div class="worker-item" onclick="selectUser(this, 'Ovidiu')"><span class="w-emoji">🚐</span><span class="w-label">Ovidiu</span></div>
-            </div>
+            <div class="worker-grid" id="main-worker-list"></div>
 
             <div class="loc-auto">
                 <span style="font-size:1.5rem;">📍</span>
@@ -245,8 +247,18 @@
                 <div style="margin-top:10px; font-weight:600; color:#555;">Pauză totală: <span id="pause-val">0m</span></div>
             </div>
 
-            <button class="btn btn-pause" id="btn-pause" onclick="togglePause()">☕ PAUZĂ</button>
-            <button class="btn btn-stop" onclick="stopShift()">⏹ STOP ZI</button>
+            <div id="work-controls">
+                <button class="btn btn-pause" id="btn-pause" onclick="togglePause()">☕ PAUZĂ</button>
+                <button class="btn btn-stop" onclick="showStopConfirm()">⏹ STOP ZI</button>
+            </div>
+
+            <div id="stop-confirm-box" class="stop-confirm-box hidden">
+                <h3 style="margin-top:0;">Dorești să faci o poză?</h3>
+                <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoUpload(this)">
+                <button class="btn btn-photo" onclick="document.getElementById('photo-input').click()">📷 DA, FĂ POZĂ</button>
+                <div id="photo-status" style="font-size:0.8rem; color:#27ae60; margin-top:5px; display:none; font-weight:bold;">Imagine Atașată! ✅</div>
+                <button class="btn btn-stop" style="background:#7f8c8d; margin-top:10px;" onclick="finalizeStop(false)">OMITE (FĂRĂ POZĂ)</button>
+            </div>
         </div>
 
         <div class="admin-trigger" onclick="openAdmin()">⚙️ Admin</div>
@@ -254,30 +266,31 @@
 
     <div id="admin-screen">
         <div class="admin-header">
-            <span style="font-weight:900; letter-spacing:1px;">ADMIN GALABAU</span>
+            <span style="font-weight:900; letter-spacing:1px;">ADMINISTRAȚIE</span>
             <button onclick="closeAdmin()" style="background:none; border:none; color:white; font-size:1.5rem;">✕</button>
         </div>
 
         <div style="padding:20px;">
             
             <div class="admin-card">
-                <h4 style="margin:0 0 15px 0;">📝 Organizare Echipe</h4>
-                <div class="team-edit-row">
-                    <input class="inp" type="text" id="tm1-n" placeholder="Echipa 1">
-                    <input class="inp" type="text" id="tm1-l" placeholder="Locație">
-                    <input class="inp" type="text" id="tm1-t" placeholder="07:30">
+                <h4 style="margin:0 0 15px 0;">👥 Gestionează Echipa</h4>
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <input type="text" id="new-worker-name" class="inp" placeholder="Nume nou (ex: Alex)" style="width:70%;">
+                    <button class="btn-add" onclick="addNewWorker()">Adaugă</button>
                 </div>
-                <div class="team-edit-row">
-                    <input class="inp" type="text" id="tm2-n" placeholder="Echipa 2">
-                    <input class="inp" type="text" id="tm2-l" placeholder="Locație">
-                    <input class="inp" type="text" id="tm2-t" placeholder="Ora">
+                <div id="admin-worker-list-container"></div>
+            </div>
+
+            <div class="admin-card">
+                <h4 style="margin:0 0 15px 0;">📝 Organizare & Avizier</h4>
+                <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #eee;">
+                    <label style="font-size:0.8rem; font-weight:bold;">Data Dispoziție (ex: 06 Dec):</label>
+                    <input class="inp" type="text" id="avizier-date-input" placeholder="Scrie data...">
                 </div>
-                <div class="team-edit-row">
-                    <input class="inp" type="text" id="tm3-n" placeholder="Echipa 3">
-                    <input class="inp" type="text" id="tm3-l" placeholder="Locație">
-                    <input class="inp" type="text" id="tm3-t" placeholder="Ora">
-                </div>
-                <button onclick="saveTeams()" style="width:100%; background:var(--brand); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">Actualizează Avizier</button>
+                <div class="team-edit-row"><input class="inp" type="text" id="tm1-n" placeholder="Echipa 1"><input class="inp" type="text" id="tm1-l" placeholder="Locație"><input class="inp" type="text" id="tm1-t" placeholder="07:30"></div>
+                <div class="team-edit-row"><input class="inp" type="text" id="tm2-n" placeholder="Echipa 2"><input class="inp" type="text" id="tm2-l" placeholder="Locație"><input class="inp" type="text" id="tm2-t" placeholder="Ora"></div>
+                <div class="team-edit-row"><input class="inp" type="text" id="tm3-n" placeholder="Echipa 3"><input class="inp" type="text" id="tm3-l" placeholder="Locație"><input class="inp" type="text" id="tm3-t" placeholder="Ora"></div>
+                <button onclick="saveTeams()" style="width:100%; background:var(--brand); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">Actualizează</button>
             </div>
 
             <div class="admin-card">
@@ -292,6 +305,7 @@
                     <span id="cal-month">Luna</span>
                     <span onclick="changeMonth(1)" style="cursor:pointer; padding:5px;">▶</span>
                 </div>
+                
                 <div class="cal-grid">
                     <div class="cal-head">Lu</div><div class="cal-head">Ma</div><div class="cal-head">Mi</div>
                     <div class="cal-head">Jo</div><div class="cal-head">Vi</div><div class="cal-head">Sâ</div><div class="cal-head" style="color:var(--danger)">Du</div>
@@ -299,6 +313,13 @@
                 <div class="cal-grid" id="cal-body"></div>
                 
                 <div id="day-detail-box" style="margin-top:20px; border-top:2px solid #f4f4f4; padding-top:15px; display:none;">
+                    
+                    <div class="legend-box">
+                        <div class="legend-item"><div class="dot bg-green"></div> Muncă</div>
+                        <div class="legend-item"><div class="dot bg-yellow"></div> Pauză</div>
+                        <div class="legend-item"><div class="dot bg-red"></div> Eroare</div>
+                    </div>
+
                     <h4 id="detail-title" style="margin:0 0 10px 0; color:var(--brand);">Activitate</h4>
                     <div id="detail-list"></div>
                 </div>
@@ -306,7 +327,10 @@
 
             <div class="admin-card">
                 <h4 style="margin:0 0 15px 0;">📊 Raport Financiar</h4>
-                <button onclick="toggleStats()" style="width:100%; background:var(--admin-bg); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">Vezi Sumar Ore (Luna Asta)</button>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="toggleStats()" style="width:100%; background:var(--admin-bg); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">Vezi Sumar</button>
+                    <button onclick="generateDetailedPDF()" class="btn-pdf">📄 Descarcă PDF</button>
+                </div>
                 <div id="stats-panel" class="hidden" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
                     <div id="stats-list"></div>
                 </div>
@@ -316,52 +340,64 @@
     </div>
 
     <script>
-        // 1. FIREBASE INIT
         const firebaseConfig = {
-            apiKey: "AIzaSyDv8S2K9AFCg_Fx3egXxYoQGnTzICE68Zw",
-            authDomain: "greenteamapp.firebaseapp.com",
-            projectId: "greenteamapp",
-            storageBucket: "greenteamapp.firebasestorage.app",
-            messagingSenderId: "180497388022",
-            appId: "1:180497388022:web:c8383c7bfa4b352d4b37d7",
-            measurementId: "G-FE3SV8ZB1D"
+            apiKey: "AIzaSyCoWS4CDB-xATg3ZsWhuaBzVvjeCGrL4X4",
+            authDomain: "galabau-victor.firebaseapp.com",
+            projectId: "galabau-victor",
+            storageBucket: "galabau-victor.firebasestorage.app",
+            messagingSenderId: "505659442402",
+            appId: "1:505659442402:web:65278af4b272fd3c618abb",
+            measurementId: "G-5TT0XW4ZDY"
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        db.enablePersistence().catch(()=>{});
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+            db.enablePersistence().catch(()=>{});
+            window.db = db;
+        } catch(e) { console.log(e); }
 
-        // 2. STATE
-        let app = { user: null, startT: 0, isPaused: false, pauseStartT: 0, totalPause: 0, docId: null, locName: "GPS" };
+        let app = { user: null, startT: 0, isPaused: false, pauseStartT: 0, totalPause: 0, docId: null, locName: "GPS", photoBase64: null };
         let timerInt, mapInst, mapMarkers=[], viewDate=new Date();
 
-        // 3. STARTUP
+        // DIACRITIC REMOVER
+        function cleanText(str) {
+            if(!str) return "";
+            const map = {'ă':'a','â':'a','î':'i','ș':'s','ț':'t','Ă':'A','Â':'A','Î':'I','Ș':'S','Ț':'T'};
+            return str.replace(/[ăâîșțĂÂÎȘȚ]/g, function(m) { return map[m]; });
+        }
+
+        const msgs = {
+            m: ["Neața! Cafeaua și la muncă! ☕", "Start în forță azi! 🚀", "O zi productivă! 🔨", "Să meargă treaba strună! 💪"],
+            n: ["Poftă mare la masă! 🥪", "Hai că mai e puțin! ☀️", "Zi spornică în continuare!", "Trageți tare! 🚜", "Mai e un pic! ⏳"],
+            e: ["Seară liniștită! 🌙", "Odihnă plăcută! 🏠", "Bravo pentru azi! ✅", "Meritați o bere! 🍺"],
+            cold: ["⚠️ E frig! Luați haine groase!", "❄️ Mișcarea ține de cald!"],
+            hot: ["🔥 E caniculă! Hidratați-vă!", "☀️ Șapca pe cap! Soare puternic!"],
+            rain: ["🌧️ Atenție la ploaie!", "☔ Aveți grijă la noroi!"]
+        };
+
         window.onload = () => {
             initClock();
             loadTeams();
-            const saved = localStorage.getItem('gb_v15');
+            loadWorkers(); // NOU: Incarca lista dinamica
+            
+            const saved = localStorage.getItem('vt_v26');
             if(saved) {
                 const s = JSON.parse(saved);
                 const today = new Date().toLocaleDateString('ro-RO');
                 const sessionDay = new Date(s.startT).toLocaleDateString('ro-RO');
-                
-                // AUTO-CLOSE CHECK
-                if(today !== sessionDay) {
-                    forceClose(s);
-                } else {
-                    app = s; restoreUI();
-                }
+                if(today !== sessionDay) forceClose(s);
+                else { app = s; restoreUI(); }
             }
-            setTimeout(()=>document.getElementById('loader').style.display='none', 800);
+            setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 1500);
         };
 
-        // 4. CLOCK & WEATHER
         function initClock() {
             setInterval(()=>{
                 const now = new Date();
                 document.getElementById('clock-display').innerText = now.toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'});
-                const day = now.getDate();
-                const month = now.toLocaleString('ro-RO', { month: 'long' }).toUpperCase();
-                document.getElementById('date-display').innerText = `${day} ${month} ${now.getFullYear()}`;
+                const months = ["IANUARIE","FEBRUARIE","MARTIE","APRILIE","MAI","IUNIE","IULIE","AUGUST","SEPTEMBRIE","OCTOMBRIE","NOIEMBRIE","DECEMBRIE"];
+                document.getElementById('date-display').innerText = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
             }, 1000);
 
             if(navigator.geolocation) {
@@ -373,50 +409,116 @@
                         document.getElementById('w-temp').innerText = t+"°";
                         
                         const h = new Date().getHours();
-                        let msg = h<11 ? "Bună dimineața!" : (h<18 ? "Spor la treabă!" : "Seară plăcută!");
-                        document.getElementById('smart-greet').innerText = msg;
-                        document.getElementById('smart-sub').innerText = t > 25 ? "E cald, hidratați-vă!" : (t < 10 ? "E frig, luați haine groase!" : "Vreme bună.");
+                        let mainMsg = h < 11 ? msgs.m[0] : (h < 17 ? msgs.n[0] : msgs.e[0]);
+                        let subMsg = "Vreme bună.";
+                        if(t < 5) subMsg = msgs.cold[0];
+                        else if(t > 28) subMsg = msgs.hot[0];
+                        else if(d.current_weather.weathercode > 50) subMsg = msgs.rain[0];
+
+                        document.getElementById('smart-greet').innerText = mainMsg;
+                        document.getElementById('smart-sub').innerText = subMsg;
                     } catch(e){}
                 });
             }
         }
 
-        // 5. AVIZIER
+        // --- MANAGEMENT ECHIPA (DYNAMIC WORKERS) ---
+        async function loadWorkers() {
+            const doc = await window.db.collection('settings').doc('workers_v26').get();
+            let workers = ["Sandu", "Nicu", "Vadim", "Sorin", "Fani", "Ovidiu"]; // Default
+            
+            if(doc.exists && doc.data().list) {
+                workers = doc.data().list;
+            } else {
+                // First time setup
+                window.db.collection('settings').doc('workers_v26').set({list: workers});
+            }
+            renderWorkerGrid(workers);
+            renderAdminWorkerList(workers);
+        }
+
+        function renderWorkerGrid(list) {
+            const grid = document.getElementById('main-worker-list');
+            grid.innerHTML = "";
+            list.forEach(name => {
+                grid.innerHTML += `
+                    <div class="worker-item" onclick="selectUser(this, '${name}')">
+                        <span class="w-emoji">👷‍♂️</span>
+                        <span class="w-label">${name}</span>
+                    </div>`;
+            });
+        }
+
+        function renderAdminWorkerList(list) {
+            const container = document.getElementById('admin-worker-list-container');
+            container.innerHTML = "";
+            list.forEach(name => {
+                container.innerHTML += `
+                    <div class="admin-worker-row">
+                        <span>👷‍♂️ ${name}</span>
+                        <button class="btn-small-del" onclick="deleteWorker('${name}')">Șterge</button>
+                    </div>`;
+            });
+        }
+
+        async function addNewWorker() {
+            const name = document.getElementById('new-worker-name').value;
+            if(!name) return;
+            
+            const doc = await window.db.collection('settings').doc('workers_v26').get();
+            let list = doc.exists ? doc.data().list : [];
+            list.push(name);
+            
+            await window.db.collection('settings').doc('workers_v26').update({list: list});
+            document.getElementById('new-worker-name').value = "";
+            loadWorkers(); // Refresh
+            alert("Adăugat!");
+        }
+
+        async function deleteWorker(name) {
+            if(!confirm(`Ștergi pe ${name}?`)) return;
+            const doc = await window.db.collection('settings').doc('workers_v26').get();
+            let list = doc.data().list.filter(w => w !== name);
+            
+            await window.db.collection('settings').doc('workers_v26').update({list: list});
+            loadWorkers(); // Refresh
+        }
+
+        // AVIZIER
         function loadTeams() {
-            db.collection('settings').doc('echipe_v10').onSnapshot(d => {
+            if(!window.db) return;
+            window.db.collection('settings').doc('echipe_v10').onSnapshot(d => {
                 const container = document.getElementById('teams-container');
                 container.innerHTML = "";
                 if(d.exists) {
                     const data = d.data();
-                    const teams = [data.t1, data.t2, data.t3].filter(t => t && t.nume);
+                    if(data.data_avizier) document.getElementById('avizier-label-text').innerText = `📋 DISPOZIȚII: ${data.data_avizier}`;
                     
+                    const teams = [data.t1, data.t2, data.t3].filter(t => t && t.nume);
                     if(teams.length === 0) container.innerHTML = "<div style='text-align:center;color:#999'>Nicio dispoziție momentan.</div>";
 
                     teams.forEach((t, i) => {
                         container.innerHTML += `
                             <div class="team-display-card t${i+1}">
-                                <div>
-                                    <div class="td-name">Echipa ${i+1}: ${t.nume}</div>
-                                    <div class="td-loc">📍 ${t.loc}</div>
-                                </div>
+                                <div><div class="td-name">Echipa ${i+1}: ${t.nume}</div><div class="td-loc">📍 ${t.loc}</div></div>
                                 <div class="td-time">🕒 ${t.ora}</div>
-                            </div>
-                        `;
+                            </div>`;
                     });
                 }
             });
         }
         function saveTeams() {
             const data = {
+                data_avizier: document.getElementById('avizier-date-input').value,
                 t1: { nume: document.getElementById('tm1-n').value, loc: document.getElementById('tm1-l').value, ora: document.getElementById('tm1-t').value },
                 t2: { nume: document.getElementById('tm2-n').value, loc: document.getElementById('tm2-l').value, ora: document.getElementById('tm2-t').value },
                 t3: { nume: document.getElementById('tm3-n').value, loc: document.getElementById('tm3-l').value, ora: document.getElementById('tm3-t').value }
             };
-            db.collection('settings').doc('echipe_v10').set(data, {merge:true});
+            window.db.collection('settings').doc('echipe_v10').set(data, {merge:true});
             alert("✅ Avizier actualizat!");
         }
 
-        // 6. WORKER LOGIC
+        // WORKER
         function selectUser(el, name) {
             document.querySelectorAll('.worker-item').forEach(c => c.classList.remove('selected'));
             el.classList.add('selected'); app.user = name;
@@ -440,9 +542,9 @@
 
         async function startShift(loc, lat, lon) {
             const now = Date.now();
-            app.startT = now; app.locName = loc; app.totalPause = 0; app.isPaused = false;
+            app.startT = now; app.locName = loc; app.totalPause = 0; app.isPaused = false; app.photoBase64 = null;
 
-            const doc = await db.collection('pontaje_v15').add({
+            const doc = await window.db.collection('pontaje_v26').add({
                 nume: app.user, locatie: loc, lat: lat, lon: lon,
                 start: firebase.firestore.Timestamp.fromMillis(now),
                 status: 'activ', luna: new Date().getMonth()+1, an: new Date().getFullYear(), zi: new Date().getDate()
@@ -455,37 +557,67 @@
             const now = Date.now();
             if(!app.isPaused) {
                 app.isPaused = true; app.pauseStartT = now;
-                db.collection('pontaje_v15').doc(app.docId).update({status: 'pauza'});
+                window.db.collection('pontaje_v26').doc(app.docId).update({status: 'pauza'});
             } else {
                 app.isPaused = false; app.totalPause += (now - app.pauseStartT); app.pauseStartT = 0;
-                db.collection('pontaje_v15').doc(app.docId).update({status: 'activ'});
+                window.db.collection('pontaje_v26').doc(app.docId).update({status: 'activ'});
             }
             saveLocal(); restoreUI();
         }
 
-        async function stopShift() {
-            if(!confirm("Gata?")) return;
+        function showStopConfirm() {
+            document.getElementById('work-controls').classList.add('hidden');
+            document.getElementById('stop-confirm-box').classList.remove('hidden');
+        }
+
+        function handlePhotoUpload(input) {
+            const file = input.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxWidth = 800;
+                        const scale = maxWidth / img.width;
+                        canvas.width = maxWidth;
+                        canvas.height = img.height * scale;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        app.photoBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                        document.getElementById('photo-status').style.display='block';
+                        setTimeout(() => finalizeStop(true), 1500);
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function finalizeStop(hasPhoto) {
             const now = Date.now();
             let finalPause = app.totalPause;
             if(app.isPaused) finalPause += (now - app.pauseStartT);
             const hours = ((now - app.startT - finalPause) / 3600000).toFixed(2);
 
-            await db.collection('pontaje_v15').doc(app.docId).update({
+            let updateData = {
                 stop: firebase.firestore.Timestamp.fromMillis(now),
                 ore: parseFloat(hours), pauza_min: Math.round(finalPause/60000), status: 'finalizat'
-            });
-            localStorage.removeItem('gb_v15'); location.reload();
+            };
+            if(hasPhoto && app.photoBase64) updateData.poza = app.photoBase64;
+
+            await window.db.collection('pontaje_v26').doc(app.docId).update(updateData);
+            localStorage.removeItem('vt_v26'); location.reload();
         }
 
         async function forceClose(s) {
-            alert("⚠️ Tura de ieri a fost închisă automat.");
+            alert("⚠️ Ziua anterioară închisă automat (Eroare).");
             const closeTime = new Date(s.startT); closeTime.setHours(23,59,59);
-            const hours = ((closeTime.getTime() - s.startT - s.totalPause)/3600000).toFixed(2);
-            await db.collection('pontaje_v15').doc(s.docId).update({
+            await window.db.collection('pontaje_v26').doc(s.docId).update({
                 stop: firebase.firestore.Timestamp.fromMillis(closeTime.getTime()),
-                ore: parseFloat(hours), status: 'eroare_neinchis'
+                ore: 0, status: 'eroare_neinchis'
             });
-            localStorage.removeItem('gb_v15'); location.reload();
+            localStorage.removeItem('vt_v26'); location.reload();
         }
 
         function restoreUI() {
@@ -493,10 +625,8 @@
             document.getElementById('active-panel').classList.remove('hidden');
             document.getElementById('active-user').innerText = app.user;
             document.getElementById('active-loc').innerText = "📍 " + app.locName;
-            
             const btn = document.getElementById('btn-pause');
             const badge = document.getElementById('status-badge');
-            
             if(app.isPaused) {
                 btn.innerText = "▶ REIA MUNCA"; btn.className = "btn btn-start";
                 badge.innerText = "ÎN PAUZĂ"; badge.className = "status-badge paused";
@@ -516,13 +646,13 @@
             document.getElementById('pause-val').innerText = Math.round(pauseMs/60000) + "m";
         }
 
-        function saveLocal() { localStorage.setItem('gb_v15', JSON.stringify(app)); }
+        function saveLocal() { localStorage.setItem('vt_v26', JSON.stringify(app)); }
 
-        // 7. ADMIN
+        // ADMIN
         function openAdmin() {
             if(prompt("Parola:")==="PASSAT") {
                 document.getElementById('admin-screen').style.display='block';
-                setTimeout(initMap, 300); renderCalendar();
+                setTimeout(initMap, 500); renderCalendar();
             } else alert("Greșit.");
         }
         function closeAdmin() { document.getElementById('admin-screen').style.display='none'; }
@@ -532,16 +662,19 @@
                 mapInst = L.map('map').setView([45.65, 25.60], 9);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInst);
             }
+            setTimeout(() => mapInst.invalidateSize(), 300);
             refreshMap();
         }
         function refreshMap() {
             mapMarkers.forEach(m => mapInst.removeLayer(m)); mapMarkers=[];
-            db.collection('pontaje_v15').where('status','in',['activ','pauza']).get().then(snaps => {
+            window.db.collection('pontaje_v26').where('status','in',['activ','pauza']).get().then(snaps => {
                 const group = new L.featureGroup();
                 snaps.forEach(doc => {
                     const d = doc.data();
                     if(d.lat) {
-                        const m = L.marker([d.lat, d.lon]).bindPopup(`<b>${d.nume}</b><br>${d.status}`).addTo(mapInst);
+                        const m = L.marker([d.lat, d.lon])
+                            .bindTooltip(d.nume, {permanent:true, direction:'right', className:'map-label'})
+                            .addTo(mapInst);
                         mapMarkers.push(m); group.addLayer(m);
                     }
                 });
@@ -555,10 +688,10 @@
             const grid = document.getElementById('cal-body');
             grid.innerHTML = "Wait...";
             const y = viewDate.getFullYear(), m = viewDate.getMonth();
-            const monthNames = ["IAN","FEB","MAR","APR","MAI","IUN","IUL","AUG","SEP","OCT","NOI","DEC"];
+            const monthNames = ["IANUARIE","FEBRUARIE","MARTIE","APRILIE","MAI","IUNIE","IULIE","AUGUST","SEPTEMBRIE","OCTOMBRIE","NOIEMBRIE","DECEMBRIE"];
             document.getElementById('cal-month').innerText = `${monthNames[m]} ${y}`;
 
-            const snaps = await db.collection('pontaje_v15').where('luna','==',m+1).where('an','==',y).get();
+            const snaps = await window.db.collection('pontaje_v26').where('luna','==',m+1).where('an','==',y).get();
             let dataMap = {}, totals = {};
             snaps.forEach(doc => {
                 const d = doc.data();
@@ -569,26 +702,23 @@
             window.monthlyTotals = totals; window.monthData = dataMap;
 
             const daysInMonth = new Date(y, m+1, 0).getDate();
-            const startDay = new Date(y, m, 1).getDay(); // 0 Dum
+            const startDay = new Date(y, m, 1).getDay(); 
             const pad = startDay === 0 ? 6 : startDay - 1;
 
             grid.innerHTML = "";
             for(let i=0; i<pad; i++) grid.innerHTML += `<div></div>`;
-            
             for(let d=1; d<=daysInMonth; d++) {
                 const date = new Date(y, m, d);
                 let cls = 'cal-day';
                 let content = d;
-                
                 if(date.getDay() === 0) { 
                     cls += ' sunday';
-                    content = `${d} <br><span style='font-size:0.6rem'>🍖</span>`;
+                    content = `${d}`;
                 } else if(dataMap[d]) {
                     const hasErr = dataMap[d].some(x=>x.status==='eroare_neinchis');
                     cls += hasErr ? ' error' : ' has-data';
                 }
                 if(d===new Date().getDate() && m===new Date().getMonth()) cls += ' today';
-                
                 grid.innerHTML += `<div class="${cls}" onclick="showDetails(this, ${d})">${content}</div>`;
             }
         }
@@ -596,16 +726,15 @@
         function showDetails(el, d) {
             document.querySelectorAll('.cal-day').forEach(c=>c.classList.remove('selected'));
             el.classList.add('selected');
-
             const box = document.getElementById('day-detail-box');
             const list = document.getElementById('detail-list');
             box.style.display = 'block';
             
-            const monthNames = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
+            const monthNames = ["IANUARIE","FEBRUARIE","MARTIE","APRILIE","MAI","IUNIE","IULIE","AUGUST","SEPTEMBRIE","OCTOMBRIE","NOIEMBRIE","DECEMBRIE"];
             document.getElementById('detail-title').innerText = `Activitate: ${d} ${monthNames[viewDate.getMonth()]}`;
             
             const checkDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
-            if(checkDate.getDay() === 0) { list.innerHTML = "<div style='color:#c0392b; font-weight:bold; text-align:center;'>⛔ DUMINICĂ (Zi de Grătar)</div>"; return; }
+            if(checkDate.getDay() === 0) { list.innerHTML = "<div style='color:#c0392b; font-weight:bold; text-align:center;'>o zi liberă, doar pentru grătar 🍖</div>"; return; }
 
             const data = window.monthData[d];
             if(!data) { list.innerHTML = "Fără activitate."; return; }
@@ -614,11 +743,13 @@
             data.forEach(item => {
                 let status = item.status==='activ'?'Activ': formatHuman(item.ore*3600000);
                 let pauza = item.pauza_min ? `${item.pauza_min}m` : '0m';
+                let photoHtml = item.poza ? `<br><a href="${item.poza}" download="poza.jpg" style="font-size:0.7rem; color:blue">📷 Vezi Poză</a>` : '';
+                
                 if(item.status==='eroare_neinchis') status = `<span style="color:red">⚠️ Neînchis</span>`;
                 
                 list.innerHTML += `
                     <div class="day-detail-item">
-                        <div><strong>${item.nume}</strong> <br><small style="color:#777">${item.locatie}</small></div>
+                        <div><strong>${item.nume}</strong> <br><small style="color:#777">${item.locatie}</small>${photoHtml}</div>
                         <div style="text-align:right">
                             <span class="stat-badge bg-green">${status}</span>
                             <span class="stat-badge bg-yellow">${pauza}</span>
@@ -633,10 +764,49 @@
             panel.classList.toggle('hidden');
             if(!panel.classList.contains('hidden') && window.monthlyTotals) {
                 list.innerHTML = "";
-                Object.keys(window.monthlyTotals).forEach(n => {
+                const sorted = Object.keys(window.monthlyTotals).sort((a,b) => window.monthlyTotals[b] - window.monthlyTotals[a]);
+                sorted.forEach(n => {
                     list.innerHTML += `<div style="padding:5px 0; border-bottom:1px dashed #ccc; display:flex; justify-content:space-between;"><b>${n}</b> <span>${formatHuman(window.monthlyTotals[n]*3600000)}</span></div>`;
                 });
             }
+        }
+
+        async function generateDetailedPDF() {
+            if(!window.jspdf) return alert("Eroare PDF");
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const monthName = document.getElementById('cal-month').innerText;
+            
+            doc.setFontSize(18); doc.text(`Raport Detaliat - ${monthName}`, 14, 20);
+            doc.setFontSize(10); doc.text("GalaBau Victor", 14, 28);
+            let yPos = 35;
+
+            const y = viewDate.getFullYear();
+            const m = viewDate.getMonth() + 1;
+            const snaps = await window.db.collection('pontaje_v26').where('luna','==',m).where('an','==',y).get();
+            
+            if(snaps.empty) return alert("Nu sunt date.");
+
+            let report = {};
+            snaps.forEach(doc => {
+                const d = doc.data();
+                if(!report[d.nume]) report[d.nume] = [];
+                const start = d.start.toDate().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'});
+                const end = d.stop ? d.stop.toDate().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'}) : "Activ";
+                report[d.nume].push([`${d.zi}/${d.luna}`, cleanText(d.locatie), `${start}-${end}`, formatHuman((d.ore||0)*3600000)]);
+            });
+
+            Object.keys(report).forEach(name => {
+                doc.text(`Angajat: ${name}`, 14, yPos);
+                yPos += 5;
+                doc.autoTable({
+                    startY: yPos,
+                    head: [['Data', 'Locatie', 'Interval', 'Ore']],
+                    body: report[name],
+                });
+                yPos = doc.lastAutoTable.finalY + 15;
+            });
+            doc.save(`Raport_GalaBau_${monthName}.pdf`);
         }
 
         function formatHuman(ms) {
