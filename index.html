@@ -6,14 +6,11 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#2d3436">
-    <meta name="apple-mobile-web-app-title" content="GalaBau">
+    <title>GalaBau Victor OS</title>
     
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="shortcut icon" href="icon.png">
-
-    <title>GalaBau Victor OS</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -46,6 +43,7 @@
             margin: 0; height: 100vh; display: flex; flex-direction: column;
             color: var(--dark); overflow: hidden;
             -webkit-tap-highlight-color: transparent;
+            text-align: center;
         }
 
         .backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: -1; }
@@ -54,10 +52,11 @@
         /* HEADER */
         .header-card {
             background: var(--glass); padding: 15px; border-radius: 20px;
-            box-shadow: var(--shadow); margin-bottom: 15px; text-align: center;
+            box-shadow: var(--shadow); margin-bottom: 15px;
             border-top: 5px solid var(--brand);
+            display: flex; flex-direction: column; align-items: center;
         }
-        .logo-img { height: 75px; margin-bottom: 5px; display: inline-block; }
+        .logo-img { height: 75px; margin-bottom: 5px; display: block; }
         .live-clock { font-size: 2.2rem; font-weight: 900; color: var(--dark); line-height: 1; }
         .live-date { font-size: 0.9rem; font-weight: 700; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
 
@@ -66,23 +65,24 @@
             background: linear-gradient(135deg, #11998e, #38ef7d);
             color: white; padding: 15px 20px; border-radius: 18px;
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+            margin-bottom: 20px; box-shadow: var(--shadow);
         }
         .w-temp { font-size: 3rem; font-weight: 900; }
-        .w-msg { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
-        .w-sub { font-size: 0.8rem; opacity: 0.95; font-style: italic; }
+        .w-msg { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; text-align: left; }
+        .w-sub { font-size: 0.8rem; opacity: 0.95; font-style: italic; text-align: left; }
 
         /* AVIZIER */
-        .avizier-section { margin-bottom: 25px; }
+        .avizier-section { margin-bottom: 25px; display: flex; flex-direction: column; align-items: center; }
         .avizier-label { 
             background: var(--brand); color: white; padding: 8px 20px; border-radius: 20px;
             font-size: 0.85rem; font-weight: 800; display: inline-block; margin-bottom: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-transform: uppercase;
         }
+        #teams-container { width: 100%; }
         .team-display-card {
             background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px;
             border-left: 6px solid #ccc; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: center; text-align: left;
         }
         .team-display-card.t1 { border-left-color: #e74c3c; } 
         .team-display-card.t2 { border-left-color: #3498db; } 
@@ -92,13 +92,20 @@
         .td-time { font-weight: 700; color: var(--brand); font-size: 0.9rem; }
 
         /* PANELS */
-        .glass-panel { background: var(--glass); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        .glass-panel { 
+            background: var(--glass); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; 
+            display: flex; flex-direction: column; align-items: center;
+        }
         
-        /* WORKER GRID */
-        .worker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        /* WORKER GRID - SIMETRIC */
+        .worker-grid { 
+            display: flex; flex-wrap: wrap; justify-content: center; 
+            gap: 10px; margin-top: 15px; width: 100%;
+        }
         .worker-item {
             background: white; border: 2px solid transparent; border-radius: 16px;
             padding: 15px 5px; text-align: center; cursor: pointer; transition: 0.1s;
+            width: 30%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center;
         }
         .worker-item.selected {
             border-color: var(--brand); background: #e8f5e9; transform: scale(1.05);
@@ -110,7 +117,7 @@
         /* LOCATIE */
         .loc-auto {
             background: white; border: 1px solid #ddd; border-radius: 12px; padding: 15px;
-            margin-top: 20px; display: flex; align-items: center; gap: 10px;
+            margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; box-sizing: border-box;
         }
         .loc-txt { font-weight: 700; font-size: 0.9rem; color: #555; }
 
@@ -118,6 +125,7 @@
         .active-panel {
             background: var(--glass); border-radius: 30px; padding: 40px 20px;
             text-align: center; margin-top: 20px; box-shadow: var(--shadow);
+            display: flex; flex-direction: column; align-items: center;
         }
         .timer-val { font-size: 4.5rem; font-weight: 900; color: var(--brand-dark); line-height: 1; font-variant-numeric: tabular-nums; }
         .status-badge {
@@ -131,11 +139,12 @@
             width: 100%; padding: 20px; border: none; border-radius: 16px;
             font-size: 1.2rem; font-weight: 800; color: white; cursor: pointer;
             margin-top: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            display: flex; justify-content: center; align-items: center;
         }
         .btn-start { background: var(--brand); }
         .btn-stop { background: var(--danger); }
         .btn-pause { background: var(--warning); color: #333; }
-        .btn-photo { background: white; color: #333; border: 2px dashed #ccc; font-size: 0.9rem; padding: 12px; display:flex; align-items:center; justify-content:center; gap:10px; border-radius: 12px; }
+        .btn-photo { background: white; color: #333; border: 2px dashed #ccc; font-size: 0.9rem; padding: 12px; display:flex; align-items:center; justify-content:center; gap:10px; border-radius: 12px; width: 100%; margin-top: 10px; }
         .btn-pdf { background: #c0392b; color: white; margin-top: 10px; font-size: 0.9rem; padding: 12px; border-radius: 8px; width: 100%; border:none; cursor:pointer;}
         .btn-small-del { background: #c0392b; color: white; border:none; border-radius:5px; padding:2px 8px; font-size:0.7rem; cursor:pointer; }
         .btn-add { background: var(--brand); color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 30%; font-weight:bold;}
@@ -148,7 +157,7 @@
         /* ADMIN PANEL */
         #admin-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #ecf0f1; z-index: 200; overflow-y: auto; display: none;
+            background: #ecf0f1; z-index: 200; overflow-y: auto; display: none; text-align: left;
         }
         .admin-header {
             background: var(--brand); color: white; padding: 20px;
@@ -158,7 +167,7 @@
         .team-edit-row { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 8px; margin-bottom: 10px; }
         .inp { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
 
-        /* WORKER MANAGEMENT LIST */
+        /* ADMIN WORKERS */
         .admin-worker-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px; border-bottom: 1px solid #eee; font-weight: 600;
@@ -191,10 +200,9 @@
         .bg-yellow { background: #f1c40f; color: #333; }
         .bg-red { background: #e74c3c; }
 
-        /* CONFIRM BOX */
         .stop-confirm-box {
-            background: white; padding: 20px; border-radius: 15px; margin-top: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 1px solid #eee;
+            background: white; padding: 20px; border-radius: 15px; margin-top: 20px; width: 100%; box-sizing: border-box;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 1px solid #eee; display: flex; flex-direction: column; align-items: center;
         }
 
         .loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:999; display:flex; justify-content:center; align-items:center; flex-direction:column; }
@@ -209,7 +217,6 @@
 
     <div id="loader" class="loader">
         <img src="Galabau-Victor-Logo.png" style="width:120px; margin-bottom:20px;">
-        <div style="font-weight:bold; color:#777; margin-top:10px;">Victor Tigoianu</div>
     </div>
 
     <div id="main-screen" class="app-container">
@@ -230,12 +237,11 @@
 
         <div class="avizier-section">
             <div class="avizier-label" id="avizier-label-text">📋 DISPOZIȚII VICTOR</div>
-            <div id="teams-container">
-                </div>
+            <div id="teams-container"></div>
         </div>
 
         <div id="setup-panel" class="glass-panel">
-            <h3 style="margin:0 0 15px 0; text-align:center; color:#333;">Selectează Numele:</h3>
+            <h3 style="margin:0 0 15px 0; color:#333;">Selectează Numele:</h3>
             
             <div class="worker-grid" id="main-worker-list"></div>
 
@@ -257,7 +263,7 @@
                 <div style="margin-top:10px; font-weight:600; color:#555;">Pauză totală: <span id="pause-val">0m</span></div>
             </div>
 
-            <div id="work-controls">
+            <div id="work-controls" style="width:100%">
                 <button class="btn btn-pause" id="btn-pause" onclick="togglePause()">☕ PAUZĂ</button>
                 <button class="btn btn-stop" onclick="showStopConfirm()">⏹ STOP ZI</button>
             </div>
@@ -293,27 +299,13 @@
 
             <div class="admin-card">
                 <h4 style="margin:0 0 15px 0;">📝 Organizare & Avizier</h4>
-                
                 <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #eee;">
                     <label style="font-size:0.8rem; font-weight:bold;">Data Dispoziție (ex: 06 Dec):</label>
                     <input class="inp" type="text" id="avizier-date-input" placeholder="Scrie data...">
                 </div>
-
-                <div class="team-edit-row">
-                    <input class="inp" type="text" id="tm1-n" placeholder="Echipa 1">
-                    <input class="inp" type="text" id="tm1-l" placeholder="Locație">
-                    <input class="inp" type="text" id="tm1-t" placeholder="07:30">
-                </div>
-                <div class="team-edit-row">
-                    <input class="inp" type="text" id="tm2-n" placeholder="Echipa 2">
-                    <input class="inp" type="text" id="tm2-l" placeholder="Locație">
-                    <input class="inp" type="text" id="tm2-t" placeholder="Ora">
-                </div>
-                <div class="team-edit-row">
-                    <input class="inp" type="text" id="tm3-n" placeholder="Echipa 3">
-                    <input class="inp" type="text" id="tm3-l" placeholder="Locație">
-                    <input class="inp" type="text" id="tm3-t" placeholder="Ora">
-                </div>
+                <div class="team-edit-row"><input class="inp" type="text" id="tm1-n" placeholder="Echipa 1"><input class="inp" type="text" id="tm1-l" placeholder="Locație"><input class="inp" type="text" id="tm1-t" placeholder="07:30"></div>
+                <div class="team-edit-row"><input class="inp" type="text" id="tm2-n" placeholder="Echipa 2"><input class="inp" type="text" id="tm2-l" placeholder="Locație"><input class="inp" type="text" id="tm2-t" placeholder="Ora"></div>
+                <div class="team-edit-row"><input class="inp" type="text" id="tm3-n" placeholder="Echipa 3"><input class="inp" type="text" id="tm3-l" placeholder="Locație"><input class="inp" type="text" id="tm3-t" placeholder="Ora"></div>
                 <button onclick="saveTeams()" style="width:100%; background:var(--brand); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">Actualizează</button>
             </div>
 
@@ -324,7 +316,6 @@
             </div>
 
             <div class="admin-card">
-                
                 <div class="legend-box">
                     <div class="legend-item"><div class="dot bg-green"></div> Muncă</div>
                     <div class="legend-item"><div class="dot bg-yellow"></div> Pauză</div>
@@ -401,12 +392,40 @@
             rain: ["🌧️ Atenție la ploaie!", "☔ Aveți grijă la noroi!"]
         };
 
+        // AUTO-CLEANUP FUNCTION (Ruleaza la pornire)
+        async function checkAndCloseOldShifts() {
+            const yesterday = new Date();
+            yesterday.setHours(0,0,0,0);
+            
+            // Cautam tot ce e 'activ' sau 'pauza' inainte de azi
+            const snaps = await window.db.collection('pontaje_final_v1')
+                .where('status', 'in', ['activ', 'pauza'])
+                .where('start', '<', firebase.firestore.Timestamp.fromDate(yesterday)) 
+                .get();
+
+            if(!snaps.empty) {
+                snaps.forEach(doc => {
+                    const d = doc.data();
+                    const forceStop = new Date(d.start.toDate());
+                    forceStop.setHours(23, 59, 59);
+                    
+                    window.db.collection('pontaje_final_v1').doc(doc.id).update({
+                        status: 'eroare_neinchis',
+                        stop: firebase.firestore.Timestamp.fromDate(forceStop),
+                        ore: 0
+                    });
+                });
+            }
+        }
+
         // STARTUP
         window.onload = () => {
             initClock();
             loadTeams();
             loadWorkers();
-            const saved = localStorage.getItem('vt_v26');
+            checkAndCloseOldShifts(); 
+            
+            const saved = localStorage.getItem('vt_v30');
             if(saved) {
                 const s = JSON.parse(saved);
                 const today = new Date().toLocaleDateString('ro-RO');
@@ -421,7 +440,6 @@
             setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 1500);
         };
 
-        // CLOCK
         function initClock() {
             setInterval(()=>{
                 const now = new Date();
@@ -445,9 +463,9 @@
                         else mainMsg = msgs.e[Math.floor(Math.random()*msgs.e.length)];
 
                         let subMsg = "Vreme bună.";
-                        if(t < 5) subMsg = msgs.cold[Math.floor(Math.random()*msgs.cold.length)];
-                        else if(t > 28) subMsg = msgs.hot[Math.floor(Math.random()*msgs.hot.length)];
-                        else if(d.current_weather.weathercode > 50) subMsg = msgs.rain[Math.floor(Math.random()*msgs.rain.length)];
+                        if(t < 5) subMsg = msgs.cold[0];
+                        else if(t > 28) subMsg = msgs.hot[0];
+                        else if(d.current_weather.weathercode > 50) subMsg = msgs.rain[0];
 
                         document.getElementById('smart-greet').innerText = mainMsg;
                         document.getElementById('smart-sub').innerText = subMsg;
@@ -458,13 +476,13 @@
 
         // --- MANAGEMENT WORKERS ---
         async function loadWorkers() {
-            const doc = await window.db.collection('settings').doc('workers_v26').get();
+            const doc = await window.db.collection('settings').doc('workers_final').get();
             let workers = ["Sandu", "Nicu", "Vadim", "Sorin", "Fani", "Ovidiu"]; 
             
             if(doc.exists && doc.data().list) {
                 workers = doc.data().list;
             } else {
-                window.db.collection('settings').doc('workers_v26').set({list: workers});
+                window.db.collection('settings').doc('workers_final').set({list: workers});
             }
             renderWorkerGrid(workers);
             renderAdminWorkerList(workers);
@@ -497,10 +515,10 @@
         async function addNewWorker() {
             const name = document.getElementById('new-worker-name').value;
             if(!name) return;
-            const doc = await window.db.collection('settings').doc('workers_v26').get();
+            const doc = await window.db.collection('settings').doc('workers_final').get();
             let list = doc.exists ? doc.data().list : [];
             list.push(name);
-            await window.db.collection('settings').doc('workers_v26').set({list: list}, {merge:true});
+            await window.db.collection('settings').doc('workers_final').set({list: list}, {merge:true});
             document.getElementById('new-worker-name').value="";
             loadWorkers();
             alert("Adăugat!");
@@ -508,9 +526,9 @@
 
         async function deleteWorker(name) {
             if(!confirm("Ștergi?")) return;
-            const doc = await window.db.collection('settings').doc('workers_v26').get();
+            const doc = await window.db.collection('settings').doc('workers_final').get();
             let list = doc.data().list.filter(w => w !== name);
-            await window.db.collection('settings').doc('workers_v26').update({list: list});
+            await window.db.collection('settings').doc('workers_final').update({list: list});
             loadWorkers();
         }
 
@@ -574,7 +592,7 @@
             const now = Date.now();
             app.startT = now; app.locName = loc; app.totalPause = 0; app.isPaused = false; app.photoBase64 = null;
 
-            const doc = await window.db.collection('pontaje_v26').add({
+            const doc = await window.db.collection('pontaje_final_v1').add({
                 nume: app.user, locatie: loc, lat: lat, lon: lon,
                 start: firebase.firestore.Timestamp.fromMillis(now),
                 status: 'activ', luna: new Date().getMonth()+1, an: new Date().getFullYear(), zi: new Date().getDate()
@@ -587,10 +605,10 @@
             const now = Date.now();
             if(!app.isPaused) {
                 app.isPaused = true; app.pauseStartT = now;
-                window.db.collection('pontaje_v26').doc(app.docId).update({status: 'pauza'});
+                window.db.collection('pontaje_final_v1').doc(app.docId).update({status: 'pauza'});
             } else {
                 app.isPaused = false; app.totalPause += (now - app.pauseStartT); app.pauseStartT = 0;
-                window.db.collection('pontaje_v26').doc(app.docId).update({status: 'activ'});
+                window.db.collection('pontaje_final_v1').doc(app.docId).update({status: 'activ'});
             }
             saveLocal(); restoreUI();
         }
@@ -636,18 +654,18 @@
             };
             if(hasPhoto && app.photoBase64) updateData.poza = app.photoBase64;
 
-            await window.db.collection('pontaje_v26').doc(app.docId).update(updateData);
-            localStorage.removeItem('vt_v26'); location.reload();
+            await window.db.collection('pontaje_final_v1').doc(app.docId).update(updateData);
+            localStorage.removeItem('vt_v30'); location.reload();
         }
 
         async function forceClose(s) {
             alert("⚠️ Ziua anterioară închisă automat (Eroare).");
             const closeTime = new Date(s.startT); closeTime.setHours(23,59,59);
-            await window.db.collection('pontaje_v26').doc(s.docId).update({
+            await window.db.collection('pontaje_final_v1').doc(s.docId).update({
                 stop: firebase.firestore.Timestamp.fromMillis(closeTime.getTime()),
                 ore: 0, status: 'eroare_neinchis'
             });
-            localStorage.removeItem('vt_v26'); location.reload();
+            localStorage.removeItem('vt_v30'); location.reload();
         }
 
         function restoreUI() {
@@ -676,13 +694,14 @@
             document.getElementById('pause-val').innerText = Math.round(pauseMs/60000) + "m";
         }
 
-        function saveLocal() { localStorage.setItem('vt_v26', JSON.stringify(app)); }
+        function saveLocal() { localStorage.setItem('vt_v30', JSON.stringify(app)); }
 
         // ADMIN
         function openAdmin() {
             if(prompt("Parola:")==="PASSAT") {
                 document.getElementById('admin-screen').style.display='block';
                 setTimeout(initMap, 500); renderCalendar();
+                checkAndCloseOldShifts();
             } else alert("Greșit.");
         }
         function closeAdmin() { document.getElementById('admin-screen').style.display='none'; }
@@ -697,7 +716,7 @@
         }
         function refreshMap() {
             mapMarkers.forEach(m => mapInst.removeLayer(m)); mapMarkers=[];
-            window.db.collection('pontaje_v26').where('status','in',['activ','pauza']).get().then(snaps => {
+            window.db.collection('pontaje_final_v1').where('status','in',['activ','pauza']).get().then(snaps => {
                 const group = new L.featureGroup();
                 snaps.forEach(doc => {
                     const d = doc.data();
@@ -721,7 +740,7 @@
             const monthNames = ["IANUARIE","FEBRUARIE","MARTIE","APRILIE","MAI","IUNIE","IULIE","AUGUST","SEPTEMBRIE","OCTOMBRIE","NOIEMBRIE","DECEMBRIE"];
             document.getElementById('cal-month').innerText = `${monthNames[m]} ${y}`;
 
-            const snaps = await window.db.collection('pontaje_v26').where('luna','==',m+1).where('an','==',y).get();
+            const snaps = await window.db.collection('pontaje_final_v1').where('luna','==',m+1).where('an','==',y).get();
             let dataMap = {}, totals = {};
             snaps.forEach(doc => {
                 const d = doc.data();
@@ -813,7 +832,7 @@
 
             const y = viewDate.getFullYear();
             const m = viewDate.getMonth() + 1;
-            const snaps = await window.db.collection('pontaje_v26').where('luna','==',m).where('an','==',y).get();
+            const snaps = await window.db.collection('pontaje_final_v1').where('luna','==',m).where('an','==',y).get();
             
             if(snaps.empty) return alert("Nu sunt date.");
 
