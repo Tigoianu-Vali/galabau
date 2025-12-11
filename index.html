@@ -97,7 +97,7 @@
             display: flex; flex-direction: column; align-items: center;
         }
         
-        /* WORKER GRID */
+        /* WORKER GRID - SIMETRIC */
         .worker-grid { 
             display: flex; flex-wrap: wrap; justify-content: center; 
             gap: 10px; margin-top: 15px; width: 100%;
@@ -222,7 +222,7 @@
     <div class="backdrop"></div>
 
     <div id="loader" class="loader">
-        <img src="Galabau-Victor-Logo.png" style="width:100%; height:100%; object-fit:cover;">
+        <img src="Galabau-Victor-Logo.png" style="width:100%; max-width:500px; height:auto; object-fit:contain;">
     </div>
 
     <div id="main-screen" class="app-container">
@@ -410,11 +410,11 @@
         }
 
         const msgs = {
-            m: ["Neața! Cafeaua și la muncă! ☕", "Start în forță azi! 🚀"],
-            n: ["Poftă mare la masă! 🥪", "Hai că mai e puțin! ☀️"],
-            e: ["Seară liniștită! 🌙", "Odihnă plăcută! 🏠"],
+            m: ["Neața! Cafeaua și la muncă! ☕", "Start în forță azi! 🚀", "O zi productivă! 🔨", "Să meargă treaba strună! 💪"],
+            n: ["Poftă mare la masă! 🥪", "Hai că mai e puțin! ☀️", "Zi spornică în continuare!", "Trageți tare! 🚜", "Mai e un pic! ⏳"],
+            e: ["Seară liniștită! 🌙", "Odihnă plăcută! 🏠", "Bravo pentru azi! ✅", "Meritați o bere! 🍺"],
             cold: ["⚠️ E frig! Luați haine groase!", "❄️ Mișcarea ține de cald!"],
-            hot: ["🔥 E caniculă! Hidratați-vă!", "☀️ Șapca pe cap!"],
+            hot: ["🔥 E caniculă! Hidratați-vă!", "☀️ Șapca pe cap! Soare puternic!"],
             rain: ["🌧️ Atenție la ploaie!", "☔ Aveți grijă la noroi!"]
         };
 
@@ -438,7 +438,7 @@
             loadSites();
             checkAndCloseOldShifts();
             
-            const saved = localStorage.getItem('vt_v34');
+            const saved = localStorage.getItem('vt_v35');
             if(saved) {
                 const s = JSON.parse(saved);
                 const today = new Date().toLocaleDateString('ro-RO');
@@ -670,11 +670,11 @@
             if(hasPhoto && app.photoBase64) updateData.poza = app.photoBase64;
 
             await window.db.collection('pontaje_final_v1').doc(app.docId).update(updateData);
-            localStorage.removeItem('vt_v34'); location.reload();
+            localStorage.removeItem('vt_v35'); location.reload();
         }
 
         async function forceClose(s) {
-            localStorage.removeItem('vt_v34'); location.reload();
+            localStorage.removeItem('vt_v35'); location.reload();
         }
 
         function restoreUI() {
@@ -704,7 +704,7 @@
             document.getElementById('pause-val').innerText = Math.round(pauseMs/60000) + "m";
         }
 
-        function saveLocal() { localStorage.setItem('vt_v34', JSON.stringify(app)); }
+        function saveLocal() { localStorage.setItem('vt_v35', JSON.stringify(app)); }
 
         // ADMIN
         function openAdmin() {
