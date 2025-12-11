@@ -6,7 +6,7 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>GalaBau Victor OS</title>
+    <title>GalaBau Victor</title>
     
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
@@ -97,7 +97,7 @@
             display: flex; flex-direction: column; align-items: center;
         }
         
-        /* WORKER GRID - SIMETRIC */
+        /* WORKER GRID */
         .worker-grid { 
             display: flex; flex-wrap: wrap; justify-content: center; 
             gap: 10px; margin-top: 15px; width: 100%;
@@ -114,10 +114,17 @@
         .w-emoji { font-size: 3rem; display: block; margin-bottom: 5px; line-height: 1; }
         .w-label { font-weight: 800; font-size: 0.9rem; }
 
+        /* SITE SELECTOR */
+        .site-select {
+            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #ddd;
+            font-size: 1rem; font-weight: bold; margin-bottom: 15px; background: white;
+            color: var(--dark); box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
         /* LOCATIE */
         .loc-auto {
             background: white; border: 1px solid #ddd; border-radius: 12px; padding: 15px;
-            margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; box-sizing: border-box;
+            margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; box-sizing: border-box;
         }
         .loc-txt { font-weight: 700; font-size: 0.9rem; color: #555; }
 
@@ -167,8 +174,7 @@
         .team-edit-row { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 8px; margin-bottom: 10px; }
         .inp { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
 
-        /* ADMIN WORKERS */
-        .admin-worker-row {
+        .admin-list-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px; border-bottom: 1px solid #eee; font-weight: 600;
         }
@@ -242,12 +248,18 @@
 
         <div id="setup-panel" class="glass-panel">
             <h3 style="margin:0 0 15px 0; color:#333;">Selectează Numele:</h3>
-            
             <div class="worker-grid" id="main-worker-list"></div>
 
+            <div style="width:100%; margin-top:20px; text-align:left;">
+                <label style="font-weight:bold; font-size:0.9rem; color:#555;">📍 Selectează Șantierul:</label>
+                <select id="site-selector" class="site-select">
+                    <option value="" disabled selected>-- Alege Șantier --</option>
+                </select>
+            </div>
+
             <div class="loc-auto">
-                <span style="font-size:1.5rem;">📍</span>
-                <div class="loc-txt" id="loc-status">Localizare Automată la Start</div>
+                <span style="font-size:1.5rem;">📡</span>
+                <div class="loc-txt" id="loc-status">Locație Automată</div>
             </div>
 
             <button class="btn btn-start" onclick="initStart()">🚀 START MUNCĂ</button>
@@ -255,7 +267,8 @@
 
         <div id="active-panel" class="active-panel hidden">
             <h2 id="active-user" style="margin:0;">Angajat</h2>
-            <p id="active-loc" style="color:#666; font-weight:600;">Locație GPS</p>
+            <p id="active-site" style="font-weight:800; color:var(--brand); margin:5px 0;">Șantier</p>
+            <p id="active-loc" style="color:#666; font-size:0.8rem;">Locație GPS</p>
             
             <div style="margin:30px 0;">
                 <div id="status-badge" class="status-badge">ACTIV</div>
@@ -295,6 +308,15 @@
                     <button class="btn-add" onclick="addNewWorker()">Adaugă</button>
                 </div>
                 <div id="admin-worker-list-container"></div>
+            </div>
+
+            <div class="admin-card">
+                <h4 style="margin:0 0 15px 0;">🏗️ Gestionează Șantiere</h4>
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <input type="text" id="new-site-name" class="inp" placeholder="Nume Șantier" style="width:70%;">
+                    <button class="btn-add" onclick="addNewSite()">Adaugă</button>
+                </div>
+                <div id="admin-site-list-container"></div>
             </div>
 
             <div class="admin-card">
@@ -346,12 +368,17 @@
                     <button onclick="generateDetailedPDF()" class="btn-pdf">📄 Descarcă PDF</button>
                 </div>
                 <div id="stats-panel" class="hidden" style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;">
+                    <div style="font-weight:bold; color:var(--brand); margin-bottom:5px;">PE ANGAJAȚI:</div>
                     <div id="stats-list"></div>
+                    <div style="font-weight:bold; color:var(--brand); margin-top:15px; margin-bottom:5px;">PE ȘANTIERE:</div>
+                    <div id="site-stats-list"></div>
                 </div>
             </div>
 
         </div>
     </div>
+
+    <img id="logo-for-pdf" src="Galabau-Victor-Logo.png" style="display:none;">
 
     <script>
         // 1. CONFIGURARE FIREBASE
@@ -373,10 +400,9 @@
         } catch(e) { console.log(e); }
 
         // 2. STATE
-        let app = { user: null, startT: 0, isPaused: false, pauseStartT: 0, totalPause: 0, docId: null, locName: "GPS", photoBase64: null };
+        let app = { user: null, site: null, startT: 0, isPaused: false, pauseStartT: 0, totalPause: 0, docId: null, locName: "GPS", photoBase64: null };
         let timerInt, mapInst, mapMarkers=[], viewDate=new Date();
 
-        // 3. DIACRITIC REMOVER
         function cleanText(str) {
             if(!str) return "";
             const map = {'ă':'a','â':'a','î':'i','ș':'s','ț':'t','Ă':'A','Â':'A','Î':'I','Ș':'S','Ț':'T'};
@@ -384,36 +410,22 @@
         }
 
         const msgs = {
-            m: ["Neața! Cafeaua și la muncă! ☕", "Start în forță azi! 🚀", "O zi productivă! 🔨", "Să meargă treaba strună! 💪"],
-            n: ["Poftă mare la masă! 🥪", "Hai că mai e puțin! ☀️", "Zi spornică în continuare!", "Trageți tare! 🚜", "Mai e un pic! ⏳"],
-            e: ["Seară liniștită! 🌙", "Odihnă plăcută! 🏠", "Bravo pentru azi! ✅", "Meritați o bere! 🍺"],
+            m: ["Neața! Cafeaua și la muncă! ☕", "Start în forță azi! 🚀"],
+            n: ["Poftă mare la masă! 🥪", "Hai că mai e puțin! ☀️"],
+            e: ["Seară liniștită! 🌙", "Odihnă plăcută! 🏠"],
             cold: ["⚠️ E frig! Luați haine groase!", "❄️ Mișcarea ține de cald!"],
-            hot: ["🔥 E caniculă! Hidratați-vă!", "☀️ Șapca pe cap! Soare puternic!"],
+            hot: ["🔥 E caniculă! Hidratați-vă!", "☀️ Șapca pe cap!"],
             rain: ["🌧️ Atenție la ploaie!", "☔ Aveți grijă la noroi!"]
         };
 
-        // AUTO-CLEANUP FUNCTION (Ruleaza la pornire)
+        // AUTO-CLEANUP
         async function checkAndCloseOldShifts() {
-            const yesterday = new Date();
-            yesterday.setHours(0,0,0,0);
-            
-            // Cautam tot ce e 'activ' sau 'pauza' inainte de azi
-            const snaps = await window.db.collection('pontaje_final_v1')
-                .where('status', 'in', ['activ', 'pauza'])
-                .where('start', '<', firebase.firestore.Timestamp.fromDate(yesterday)) 
-                .get();
-
+            const yesterday = new Date(); yesterday.setHours(0,0,0,0);
+            const snaps = await window.db.collection('pontaje_final_v1').where('status', 'in', ['activ', 'pauza']).where('start', '<', firebase.firestore.Timestamp.fromDate(yesterday)).get();
             if(!snaps.empty) {
                 snaps.forEach(doc => {
-                    const d = doc.data();
-                    const forceStop = new Date(d.start.toDate());
-                    forceStop.setHours(23, 59, 59);
-                    
-                    window.db.collection('pontaje_final_v1').doc(doc.id).update({
-                        status: 'eroare_neinchis',
-                        stop: firebase.firestore.Timestamp.fromDate(forceStop),
-                        ore: 0
-                    });
+                    const forceStop = new Date(doc.data().start.toDate()); forceStop.setHours(23, 59, 59);
+                    window.db.collection('pontaje_final_v1').doc(doc.id).update({status: 'eroare_neinchis', stop: firebase.firestore.Timestamp.fromDate(forceStop), ore: 0});
                 });
             }
         }
@@ -423,19 +435,16 @@
             initClock();
             loadTeams();
             loadWorkers();
-            checkAndCloseOldShifts(); 
+            loadSites();
+            checkAndCloseOldShifts();
             
-            const saved = localStorage.getItem('vt_v30');
+            const saved = localStorage.getItem('vt_v34');
             if(saved) {
                 const s = JSON.parse(saved);
                 const today = new Date().toLocaleDateString('ro-RO');
                 const sessionDay = new Date(s.startT).toLocaleDateString('ro-RO');
-                
-                if(today !== sessionDay) {
-                    forceClose(s);
-                } else {
-                    app = s; restoreUI();
-                }
+                if(today !== sessionDay) forceClose(s);
+                else { app = s; restoreUI(); }
             }
             setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 1500);
         };
@@ -457,16 +466,9 @@
                         document.getElementById('w-temp').innerText = t+"°";
                         
                         const h = new Date().getHours();
-                        let mainMsg = "";
-                        if(h < 11) mainMsg = msgs.m[Math.floor(Math.random()*msgs.m.length)];
-                        else if(h < 17) mainMsg = msgs.n[Math.floor(Math.random()*msgs.n.length)];
-                        else mainMsg = msgs.e[Math.floor(Math.random()*msgs.e.length)];
-
+                        let mainMsg = h < 12 ? msgs.m[0] : (h < 18 ? msgs.n[0] : msgs.e[0]);
                         let subMsg = "Vreme bună.";
-                        if(t < 5) subMsg = msgs.cold[0];
-                        else if(t > 28) subMsg = msgs.hot[0];
-                        else if(d.current_weather.weathercode > 50) subMsg = msgs.rain[0];
-
+                        if(t < 5) subMsg = msgs.cold[0]; else if(t > 28) subMsg = msgs.hot[0];
                         document.getElementById('smart-greet').innerText = mainMsg;
                         document.getElementById('smart-sub').innerText = subMsg;
                     } catch(e){}
@@ -478,40 +480,21 @@
         async function loadWorkers() {
             const doc = await window.db.collection('settings').doc('workers_final').get();
             let workers = ["Sandu", "Nicu", "Vadim", "Sorin", "Fani", "Ovidiu"]; 
+            if(doc.exists && doc.data().list) workers = doc.data().list;
+            else window.db.collection('settings').doc('workers_final').set({list: workers});
             
-            if(doc.exists && doc.data().list) {
-                workers = doc.data().list;
-            } else {
-                window.db.collection('settings').doc('workers_final').set({list: workers});
-            }
-            renderWorkerGrid(workers);
-            renderAdminWorkerList(workers);
-        }
-
-        function renderWorkerGrid(list) {
             const grid = document.getElementById('main-worker-list');
             grid.innerHTML = "";
-            list.forEach(name => {
-                grid.innerHTML += `
-                    <div class="worker-item" onclick="selectUser(this, '${name}')">
-                        <span class="w-emoji">👷‍♂️</span>
-                        <span class="w-label">${name}</span>
-                    </div>`;
+            workers.forEach(name => {
+                grid.innerHTML += `<div class="worker-item" onclick="selectUser(this, '${name}')"><span class="w-emoji">👷‍♂️</span><span class="w-label">${name}</span></div>`;
             });
-        }
-        
-        function renderAdminWorkerList(list) {
-            const container = document.getElementById('admin-worker-list-container');
-            container.innerHTML = "";
-            list.forEach(name => {
-                container.innerHTML += `
-                    <div class="admin-worker-row">
-                        <span>👷‍♂️ ${name}</span>
-                        <button class="btn-small-del" onclick="deleteWorker('${name}')">Șterge</button>
-                    </div>`;
-            });
-        }
 
+            const admList = document.getElementById('admin-worker-list-container');
+            admList.innerHTML = "";
+            workers.forEach(name => {
+                admList.innerHTML += `<div class="admin-list-row"><span>👷‍♂️ ${name}</span><button class="btn-small-del" onclick="deleteWorker('${name}')">Șterge</button></div>`;
+            });
+        }
         async function addNewWorker() {
             const name = document.getElementById('new-worker-name').value;
             if(!name) return;
@@ -521,15 +504,49 @@
             await window.db.collection('settings').doc('workers_final').set({list: list}, {merge:true});
             document.getElementById('new-worker-name').value="";
             loadWorkers();
-            alert("Adăugat!");
         }
-
         async function deleteWorker(name) {
             if(!confirm("Ștergi?")) return;
             const doc = await window.db.collection('settings').doc('workers_final').get();
             let list = doc.data().list.filter(w => w !== name);
             await window.db.collection('settings').doc('workers_final').update({list: list});
             loadWorkers();
+        }
+
+        // --- MANAGEMENT SITES ---
+        async function loadSites() {
+            const doc = await window.db.collection('settings').doc('sites_v32').get();
+            let sites = [];
+            if(doc.exists && doc.data().list) sites = doc.data().list;
+            
+            const sel = document.getElementById('site-selector');
+            sel.innerHTML = `<option value="" disabled selected>-- Alege Șantier --</option>`;
+            sites.forEach(s => {
+                sel.innerHTML += `<option value="${s}">${s}</option>`;
+            });
+
+            const admList = document.getElementById('admin-site-list-container');
+            admList.innerHTML = "";
+            sites.forEach(s => {
+                admList.innerHTML += `<div class="admin-list-row"><span>🏗️ ${s}</span><button class="btn-small-del" onclick="deleteSite('${s}')">Șterge</button></div>`;
+            });
+        }
+        async function addNewSite() {
+            const name = document.getElementById('new-site-name').value;
+            if(!name) return;
+            const doc = await window.db.collection('settings').doc('sites_v32').get();
+            let list = doc.exists ? doc.data().list : [];
+            list.push(name);
+            await window.db.collection('settings').doc('sites_v32').set({list: list}, {merge:true});
+            document.getElementById('new-site-name').value="";
+            loadSites();
+        }
+        async function deleteSite(name) {
+            if(!confirm("Ștergi?")) return;
+            const doc = await window.db.collection('settings').doc('sites_v32').get();
+            let list = doc.data().list.filter(s => s !== name);
+            await window.db.collection('settings').doc('sites_v32').update({list: list});
+            loadSites();
         }
 
         // AVIZIER
@@ -541,16 +558,10 @@
                 if(d.exists) {
                     const data = d.data();
                     if(data.data_avizier) document.getElementById('avizier-label-text').innerText = `📋 DISPOZIȚII: ${data.data_avizier}`;
-                    
                     const teams = [data.t1, data.t2, data.t3].filter(t => t && t.nume);
                     if(teams.length === 0) container.innerHTML = "<div style='text-align:center;color:#999'>Nicio dispoziție momentan.</div>";
-
                     teams.forEach((t, i) => {
-                        container.innerHTML += `
-                            <div class="team-display-card t${i+1}">
-                                <div><div class="td-name">Echipa ${i+1}: ${t.nume}</div><div class="td-loc">📍 ${t.loc}</div></div>
-                                <div class="td-time">🕒 ${t.ora}</div>
-                            </div>`;
+                        container.innerHTML += `<div class="team-display-card t${i+1}"><div><div class="td-name">Echipa ${i+1}: ${t.nume}</div><div class="td-loc">📍 ${t.loc}</div></div><div class="td-time">🕒 ${t.ora}</div></div>`;
                     });
                 }
             });
@@ -574,6 +585,10 @@
 
         function initStart() {
             if(!app.user) return alert("Selectează numele!");
+            const siteVal = document.getElementById('site-selector').value;
+            if(!siteVal) return alert("Selectează Șantierul!");
+            app.site = siteVal;
+
             document.getElementById('loc-status').innerText = "📡 Se caută GPS...";
             if(!navigator.geolocation) return startShift("Fără GPS", 0, 0);
 
@@ -593,7 +608,7 @@
             app.startT = now; app.locName = loc; app.totalPause = 0; app.isPaused = false; app.photoBase64 = null;
 
             const doc = await window.db.collection('pontaje_final_v1').add({
-                nume: app.user, locatie: loc, lat: lat, lon: lon,
+                nume: app.user, santier: app.site, locatie: loc, lat: lat, lon: lon,
                 start: firebase.firestore.Timestamp.fromMillis(now),
                 status: 'activ', luna: new Date().getMonth()+1, an: new Date().getFullYear(), zi: new Date().getDate()
             });
@@ -655,17 +670,11 @@
             if(hasPhoto && app.photoBase64) updateData.poza = app.photoBase64;
 
             await window.db.collection('pontaje_final_v1').doc(app.docId).update(updateData);
-            localStorage.removeItem('vt_v30'); location.reload();
+            localStorage.removeItem('vt_v34'); location.reload();
         }
 
         async function forceClose(s) {
-            alert("⚠️ Ziua anterioară închisă automat (Eroare).");
-            const closeTime = new Date(s.startT); closeTime.setHours(23,59,59);
-            await window.db.collection('pontaje_final_v1').doc(s.docId).update({
-                stop: firebase.firestore.Timestamp.fromMillis(closeTime.getTime()),
-                ore: 0, status: 'eroare_neinchis'
-            });
-            localStorage.removeItem('vt_v30'); location.reload();
+            localStorage.removeItem('vt_v34'); location.reload();
         }
 
         function restoreUI() {
@@ -673,6 +682,7 @@
             document.getElementById('active-panel').classList.remove('hidden');
             document.getElementById('active-user').innerText = app.user;
             document.getElementById('active-loc').innerText = "📍 " + app.locName;
+            document.getElementById('active-site').innerText = "🏗️ " + (app.site || "Șantier");
             const btn = document.getElementById('btn-pause');
             const badge = document.getElementById('status-badge');
             if(app.isPaused) {
@@ -694,13 +704,14 @@
             document.getElementById('pause-val').innerText = Math.round(pauseMs/60000) + "m";
         }
 
-        function saveLocal() { localStorage.setItem('vt_v30', JSON.stringify(app)); }
+        function saveLocal() { localStorage.setItem('vt_v34', JSON.stringify(app)); }
 
         // ADMIN
         function openAdmin() {
             if(prompt("Parola:")==="PASSAT") {
                 document.getElementById('admin-screen').style.display='block';
                 setTimeout(initMap, 500); renderCalendar();
+                loadWorkers(); loadSites();
                 checkAndCloseOldShifts();
             } else alert("Greșit.");
         }
@@ -720,9 +731,10 @@
                 const group = new L.featureGroup();
                 snaps.forEach(doc => {
                     const d = doc.data();
+                    let st = d.status==='activ' ? 'Muncește' : (d.status==='pauza' ? 'În Pauză' : 'Activ');
                     if(d.lat) {
                         const m = L.marker([d.lat, d.lon])
-                            .bindTooltip(d.nume, {permanent:true, direction:'right', className:'map-label'})
+                            .bindTooltip(`${d.nume} (${st}) @ ${d.santier||'?'}`, {permanent:true, direction:'right', className:'map-label'})
                             .addTo(mapInst);
                         mapMarkers.push(m); group.addLayer(m);
                     }
@@ -741,14 +753,18 @@
             document.getElementById('cal-month').innerText = `${monthNames[m]} ${y}`;
 
             const snaps = await window.db.collection('pontaje_final_v1').where('luna','==',m+1).where('an','==',y).get();
-            let dataMap = {}, totals = {};
+            let dataMap = {}, totals = {}, siteTotals = {};
             snaps.forEach(doc => {
                 const d = doc.data();
                 if(!dataMap[d.zi]) dataMap[d.zi] = [];
                 dataMap[d.zi].push(d);
-                if(d.ore) { if(!totals[d.nume]) totals[d.nume] = 0; totals[d.nume] += d.ore; }
+                if(d.ore) { 
+                    if(!totals[d.nume]) totals[d.nume] = 0; totals[d.nume] += d.ore; 
+                    let s = d.santier || "Nespecificat";
+                    if(!siteTotals[s]) siteTotals[s] = 0; siteTotals[s] += d.ore;
+                }
             });
-            window.monthlyTotals = totals; window.monthData = dataMap;
+            window.monthlyTotals = totals; window.siteTotals = siteTotals; window.monthData = dataMap;
 
             const daysInMonth = new Date(y, m+1, 0).getDate();
             const startDay = new Date(y, m, 1).getDay(); 
@@ -790,17 +806,16 @@
 
             list.innerHTML = "";
             data.forEach(item => {
-                let status = item.status==='activ'?'Activ': formatHuman(item.ore*3600000);
+                let status = item.status==='activ'?'🟢 Muncește': (item.status==='pauza'?'🟡 În Pauză' : formatHuman(item.ore*3600000));
                 let pauza = item.pauza_min ? `${item.pauza_min}m` : '0m';
                 let photoHtml = item.poza ? `<br><a href="${item.poza}" download="poza.jpg" style="font-size:0.7rem; color:blue">📷 Vezi Poză</a>` : '';
-                
-                if(item.status==='eroare_neinchis') status = `<span style="color:red">⚠️ Neînchis</span>`;
+                if(item.status==='eroare_neinchis') status = `<span style="color:red">⚠️ Eroare</span>`;
                 
                 list.innerHTML += `
                     <div class="day-detail-item">
-                        <div><strong>${item.nume}</strong> <br><small style="color:#777">${item.locatie}</small>${photoHtml}</div>
+                        <div><strong>${item.nume}</strong> <small>(${item.santier||'Nespecificat'})</small><br><small style="color:#777">${item.locatie}</small>${photoHtml}</div>
                         <div style="text-align:right">
-                            <span class="stat-badge bg-green">${status}</span>
+                            <span class="stat-badge ${item.status==='activ'?'bg-green':(item.status==='pauza'?'bg-yellow':'bg-green')}">${status}</span>
                             <span class="stat-badge bg-yellow">${pauza}</span>
                         </div>
                     </div>`;
@@ -810,12 +825,22 @@
         function toggleStats() {
             const panel = document.getElementById('stats-panel');
             const list = document.getElementById('stats-list');
+            const siteList = document.getElementById('site-stats-list');
             panel.classList.toggle('hidden');
-            if(!panel.classList.contains('hidden') && window.monthlyTotals) {
+            
+            if(!panel.classList.contains('hidden')) {
+                // Workers
                 list.innerHTML = "";
-                const sorted = Object.keys(window.monthlyTotals).sort((a,b) => window.monthlyTotals[b] - window.monthlyTotals[a]);
-                sorted.forEach(n => {
+                const sortedW = Object.keys(window.monthlyTotals || {}).sort((a,b) => window.monthlyTotals[b] - window.monthlyTotals[a]);
+                sortedW.forEach(n => {
                     list.innerHTML += `<div style="padding:5px 0; border-bottom:1px dashed #ccc; display:flex; justify-content:space-between;"><b>${n}</b> <span>${formatHuman(window.monthlyTotals[n]*3600000)}</span></div>`;
+                });
+
+                // Sites
+                siteList.innerHTML = "";
+                const sortedS = Object.keys(window.siteTotals || {}).sort((a,b) => window.siteTotals[b] - window.siteTotals[a]);
+                sortedS.forEach(s => {
+                    siteList.innerHTML += `<div style="padding:5px 0; border-bottom:1px dashed #ccc; display:flex; justify-content:space-between;"><b>${s}</b> <span>${formatHuman(window.siteTotals[s]*3600000)}</span></div>`;
                 });
             }
         }
@@ -826,9 +851,27 @@
             const doc = new jsPDF();
             const monthName = document.getElementById('cal-month').innerText;
             
-            doc.setFontSize(18); doc.text(`Raport Detaliat - ${monthName}`, 14, 20);
-            doc.setFontSize(10); doc.text("GalaBau Victor", 14, 28);
-            let yPos = 35;
+            // LOGO
+            const logo = document.getElementById('logo-for-pdf');
+            if(logo && logo.src) {
+                try {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = logo.naturalWidth;
+                    canvas.height = logo.naturalHeight;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(logo, 0, 0);
+                    const logoData = canvas.toDataURL("image/png");
+                    doc.addImage(logoData, 'PNG', 90, 10, 30, 30 * (logo.naturalHeight/logo.naturalWidth)); 
+                } catch(e){}
+            }
+
+            doc.setFontSize(18); doc.setTextColor(0, 148, 50);
+            // Title Centered
+            doc.text(`RAPORT LUNAR - ${monthName}`, 105, 50, { align: 'center' });
+            doc.setFontSize(12); doc.setTextColor(0,0,0);
+            doc.text("GalaBau Victor", 105, 57, { align: 'center' });
+            
+            let yPos = 70;
 
             const y = viewDate.getFullYear();
             const m = viewDate.getMonth() + 1;
@@ -836,25 +879,82 @@
             
             if(snaps.empty) return alert("Nu sunt date.");
 
-            let report = {};
-            snaps.forEach(doc => {
-                const d = doc.data();
+            let rawDocs = [];
+            snaps.forEach(doc => rawDocs.push(doc.data()));
+            // SORTARE CRONOLOGICA
+            rawDocs.sort((a, b) => a.start.seconds - b.start.seconds);
+
+            let report = {}, siteReport = {};
+            
+            rawDocs.forEach(d => {
                 if(!report[d.nume]) report[d.nume] = [];
                 const start = d.start.toDate().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'});
                 const end = d.stop ? d.stop.toDate().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'}) : "Activ";
-                report[d.nume].push([`${d.zi}/${d.luna}`, cleanText(d.locatie), `${start}-${end}`, formatHuman((d.ore||0)*3600000)]);
+                let s = d.santier || "Nespecificat";
+                
+                // Calcul Ore exacte
+                let hoursVal = 0;
+                if(d.ore) hoursVal = d.ore;
+                
+                report[d.nume].push({
+                    row: [`${d.zi}/${d.luna}`, cleanText(s), cleanText(d.locatie), `${start}-${end}`, formatHuman(hoursVal*3600000)],
+                    val: hoursVal
+                });
+                
+                if(d.ore) {
+                    if(!siteReport[s]) siteReport[s] = 0;
+                    siteReport[s] += d.ore;
+                }
             });
 
+            // TABLE 1: Angajati
             Object.keys(report).forEach(name => {
+                // Check if page break needed
+                if(yPos > 250) { doc.addPage(); yPos = 20; }
+                
+                doc.setFontSize(14); doc.setTextColor(0, 148, 50);
                 doc.text(`Angajat: ${name}`, 14, yPos);
-                yPos += 5;
+                yPos += 6;
+
+                // Prepare rows
+                let rows = report[name].map(r => r.row);
+                let totalH = report[name].reduce((acc, curr) => acc + curr.val, 0);
+
                 doc.autoTable({
                     startY: yPos,
-                    head: [['Data', 'Locatie', 'Interval', 'Ore']],
-                    body: report[name],
+                    head: [['Data', 'Santier', 'Locatie', 'Interval', 'Ore']],
+                    body: rows,
+                    theme: 'grid',
+                    styles: { halign: 'center' }, // CENTRARE GENERALA
+                    headStyles: { halign: 'center', fillColor: [0, 148, 50] }, // VERDE
+                    // TOTAL ROW
+                    foot: [['', '', '', 'TOTAL LUNAR:', formatHuman(totalH * 3600000)]],
+                    footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0], fontStyle: 'bold', halign: 'center' }
                 });
                 yPos = doc.lastAutoTable.finalY + 15;
             });
+
+            // TABLE 2: SANTIERE
+            doc.addPage();
+            yPos = 20;
+            doc.setFontSize(18); doc.setTextColor(0, 148, 50);
+            doc.text("TOTAL ORE PER SANTIER", 105, yPos, { align: 'center' });
+            yPos += 15;
+            
+            let siteRows = [];
+            Object.keys(siteReport).forEach(s => {
+                siteRows.push([cleanText(s), formatHuman(siteReport[s]*3600000)]);
+            });
+            
+            doc.autoTable({
+                startY: yPos,
+                head: [['Nume Santier', 'Total Ore']],
+                body: siteRows,
+                theme: 'striped',
+                styles: { halign: 'center' },
+                headStyles: { fillColor: [44, 62, 80], halign: 'center' }
+            });
+
             doc.save(`Raport_GalaBau_${monthName}.pdf`);
         }
 
