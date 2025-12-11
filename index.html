@@ -34,6 +34,7 @@
             --warning: #f1c40f;
             --sunday-bg: #ffebee;
             --admin-bg: #2c3e50;
+            --photo-btn: #2980b9; /* Albastru placut */
         }
 
         body {
@@ -57,7 +58,7 @@
             display: flex; flex-direction: column; align-items: center;
         }
         .logo-img { height: 75px; margin-bottom: 5px; display: block; }
-        .live-clock { font-size: 2.2rem; font-weight: 900; color: var(--dark); line-height: 1; }
+        .live-clock { font-size: 2.2rem; font-weight: 900; color: var(--dark); line-height: 1; margin-top: 5px;}
         .live-date { font-size: 0.9rem; font-weight: 700; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
 
         /* VREME */
@@ -97,7 +98,7 @@
             display: flex; flex-direction: column; align-items: center;
         }
         
-        /* WORKER GRID - SIMETRIC */
+        /* WORKER GRID */
         .worker-grid { 
             display: flex; flex-wrap: wrap; justify-content: center; 
             gap: 10px; margin-top: 15px; width: 100%;
@@ -151,7 +152,16 @@
         .btn-start { background: var(--brand); }
         .btn-stop { background: var(--danger); }
         .btn-pause { background: var(--warning); color: #333; }
-        .btn-photo { background: white; color: #333; border: 2px dashed #ccc; font-size: 0.9rem; padding: 12px; display:flex; align-items:center; justify-content:center; gap:10px; border-radius: 12px; width: 100%; margin-top: 10px; }
+        
+        /* BUTON FOTO NOU (STYLIZED LABEL) */
+        .btn-photo-label {
+            width: 100%; padding: 15px; background: var(--photo-btn); border-radius: 12px;
+            font-size: 1rem; font-weight: bold; color: white; cursor: pointer;
+            margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 4px 10px rgba(41, 128, 185, 0.4); transition: transform 0.1s;
+        }
+        .btn-photo-label:active { transform: scale(0.98); }
+
         .btn-pdf { background: #c0392b; color: white; margin-top: 10px; font-size: 0.9rem; padding: 12px; border-radius: 8px; width: 100%; border:none; cursor:pointer;}
         .btn-small-del { background: #c0392b; color: white; border:none; border-radius:5px; padding:2px 8px; font-size:0.7rem; cursor:pointer; }
         .btn-add { background: var(--brand); color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 30%; font-weight:bold;}
@@ -283,8 +293,12 @@
 
             <div id="stop-confirm-box" class="stop-confirm-box hidden">
                 <h3 style="margin-top:0;">Dorești să faci o poză?</h3>
+                
                 <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoUpload(this)">
-                <button class="btn btn-photo" onclick="document.getElementById('photo-input').click()">📷 DA, FĂ POZĂ</button>
+                <label for="photo-input" class="btn-photo-label">
+                    📷 DA, FĂ POZĂ
+                </label>
+                
                 <div id="photo-status" style="font-size:0.8rem; color:#27ae60; margin-top:5px; display:none; font-weight:bold;">Imagine Atașată! ✅</div>
                 <button class="btn btn-stop" style="background:#7f8c8d; margin-top:10px;" onclick="finalizeStop(false)">OMITE (FĂRĂ POZĂ)</button>
             </div>
@@ -402,6 +416,7 @@
         // 2. STATE
         let app = { user: null, site: null, startT: 0, isPaused: false, pauseStartT: 0, totalPause: 0, docId: null, locName: "GPS", photoBase64: null };
         let timerInt, mapInst, mapMarkers=[], viewDate=new Date();
+        let watchID = null;
 
         function cleanText(str) {
             if(!str) return "";
@@ -410,11 +425,11 @@
         }
 
         const msgs = {
-            m: ["Neața! Cafeaua și la muncă! ☕", "Start în forță azi! 🚀", "O zi productivă! 🔨", "Să meargă treaba strună! 💪"],
-            n: ["Poftă mare la masă! 🥪", "Hai că mai e puțin! ☀️", "Zi spornică în continuare!", "Trageți tare! 🚜", "Mai e un pic! ⏳"],
-            e: ["Seară liniștită! 🌙", "Odihnă plăcută! 🏠", "Bravo pentru azi! ✅", "Meritați o bere! 🍺"],
+            m: ["Neața! Cafeaua și la muncă! ☕", "Start în forță azi! 🚀"],
+            n: ["Poftă mare la masă! 🥪", "Hai că mai e puțin! ☀️"],
+            e: ["Seară liniștită! 🌙", "Odihnă plăcută! 🏠"],
             cold: ["⚠️ E frig! Luați haine groase!", "❄️ Mișcarea ține de cald!"],
-            hot: ["🔥 E caniculă! Hidratați-vă!", "☀️ Șapca pe cap! Soare puternic!"],
+            hot: ["🔥 E caniculă! Hidratați-vă!", "☀️ Șapca pe cap!"],
             rain: ["🌧️ Atenție la ploaie!", "☔ Aveți grijă la noroi!"]
         };
 
@@ -438,7 +453,7 @@
             loadSites();
             checkAndCloseOldShifts();
             
-            const saved = localStorage.getItem('vt_v35');
+            const saved = localStorage.getItem('vt_v37');
             if(saved) {
                 const s = JSON.parse(saved);
                 const today = new Date().toLocaleDateString('ro-RO');
@@ -577,7 +592,7 @@
             alert("✅ Avizier actualizat!");
         }
 
-        // WORKER
+        // WORKER & LIVE LOCATION
         function selectUser(el, name) {
             document.querySelectorAll('.worker-item').forEach(c => c.classList.remove('selected'));
             el.classList.add('selected'); app.user = name;
@@ -591,6 +606,17 @@
 
             document.getElementById('loc-status').innerText = "📡 Se caută GPS...";
             if(!navigator.geolocation) return startShift("Fără GPS", 0, 0);
+
+            // REAL TIME TRACKING
+            watchID = navigator.geolocation.watchPosition(async (pos) => {
+                if(app.docId) {
+                    await window.db.collection('pontaje_final_v1').doc(app.docId).update({
+                        lat: pos.coords.latitude,
+                        lon: pos.coords.longitude,
+                        lastUpdate: firebase.firestore.FieldValue.serverTimestamp() // PT ADMIN MAP
+                    });
+                }
+            }, (e)=>{console.log(e)}, {enableHighAccuracy:true});
 
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 let loc = "Locație GPS";
@@ -610,7 +636,8 @@
             const doc = await window.db.collection('pontaje_final_v1').add({
                 nume: app.user, santier: app.site, locatie: loc, lat: lat, lon: lon,
                 start: firebase.firestore.Timestamp.fromMillis(now),
-                status: 'activ', luna: new Date().getMonth()+1, an: new Date().getFullYear(), zi: new Date().getDate()
+                status: 'activ', luna: new Date().getMonth()+1, an: new Date().getFullYear(), zi: new Date().getDate(),
+                lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
             });
             app.docId = doc.id;
             saveLocal(); restoreUI();
@@ -670,11 +697,12 @@
             if(hasPhoto && app.photoBase64) updateData.poza = app.photoBase64;
 
             await window.db.collection('pontaje_final_v1').doc(app.docId).update(updateData);
-            localStorage.removeItem('vt_v35'); location.reload();
+            if(watchID) navigator.geolocation.clearWatch(watchID);
+            localStorage.removeItem('vt_v37'); location.reload();
         }
 
         async function forceClose(s) {
-            localStorage.removeItem('vt_v35'); location.reload();
+            localStorage.removeItem('vt_v37'); location.reload();
         }
 
         function restoreUI() {
@@ -704,7 +732,7 @@
             document.getElementById('pause-val').innerText = Math.round(pauseMs/60000) + "m";
         }
 
-        function saveLocal() { localStorage.setItem('vt_v35', JSON.stringify(app)); }
+        function saveLocal() { localStorage.setItem('vt_v37', JSON.stringify(app)); }
 
         // ADMIN
         function openAdmin() {
@@ -724,6 +752,8 @@
             }
             setTimeout(() => mapInst.invalidateSize(), 300);
             refreshMap();
+            // Auto-refresh map every 10s
+            setInterval(refreshMap, 10000);
         }
         function refreshMap() {
             mapMarkers.forEach(m => mapInst.removeLayer(m)); mapMarkers=[];
@@ -731,10 +761,18 @@
                 const group = new L.featureGroup();
                 snaps.forEach(doc => {
                     const d = doc.data();
-                    let st = d.status==='activ' ? 'Muncește' : (d.status==='pauza' ? 'În Pauză' : 'Activ');
+                    let st = d.status==='activ' ? 'Muncește' : 'Pauză';
+                    
+                    // Time Calculation
+                    let timeSeen = "acum";
+                    if(d.lastUpdate) {
+                        const diff = (new Date() - d.lastUpdate.toDate()) / 60000;
+                        timeSeen = Math.floor(diff) + "m";
+                    }
+
                     if(d.lat) {
                         const m = L.marker([d.lat, d.lon])
-                            .bindTooltip(`${d.nume} (${st}) @ ${d.santier||'?'}`, {permanent:true, direction:'right', className:'map-label'})
+                            .bindTooltip(`<b>${d.nume}</b><br>${st}<br>🕒 Văzut: ${timeSeen}`, {permanent:true, direction:'right', className:'map-label'})
                             .addTo(mapInst);
                         mapMarkers.push(m); group.addLayer(m);
                     }
@@ -965,4 +1003,3 @@
     </script>
 </body>
 </html>
-
