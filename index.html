@@ -34,7 +34,7 @@
             --warning: #f1c40f;
             --sunday-bg: #ffebee;
             --admin-bg: #2c3e50;
-            --photo-btn: #2980b9; /* Albastru placut */
+            --photo-btn: #2980b9;
         }
 
         body {
@@ -88,6 +88,11 @@
         .team-display-card.t1 { border-left-color: #e74c3c; } 
         .team-display-card.t2 { border-left-color: #3498db; } 
         .team-display-card.t3 { border-left-color: #f1c40f; }
+        /* Culori extra pt echipele 4-6 */
+        .team-display-card.t4 { border-left-color: #9b59b6; }
+        .team-display-card.t5 { border-left-color: #1abc9c; }
+        .team-display-card.t6 { border-left-color: #34495e; }
+
         .td-name { font-weight: 800; font-size: 0.95rem; color: var(--dark); }
         .td-loc { font-size: 0.85rem; color: #666; display: block; margin-top: 3px; }
         .td-time { font-weight: 700; color: var(--brand); font-size: 0.9rem; }
@@ -115,21 +120,25 @@
         .w-emoji { font-size: 3rem; display: block; margin-bottom: 5px; line-height: 1; }
         .w-label { font-weight: 800; font-size: 0.9rem; }
 
-        /* SITE SELECTOR */
-        .site-select {
-            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #ddd;
-            font-size: 1rem; font-weight: bold; margin-bottom: 15px; background: white;
-            color: var(--dark); box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        /* SELECTOARE */
+        .site-select, .car-select, .km-input {
+            width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #ddd;
+            font-size: 1rem; margin-bottom: 10px; background: white;
+            color: var(--dark); box-shadow: 0 4px 10px rgba(0,0,0,0.05); box-sizing: border-box;
+        }
+        .driver-box {
+            width: 100%; background: #f1f8e9; padding: 15px; border-radius: 15px;
+            margin-top: 15px; text-align: left; border: 1px solid #c5e1a5; box-sizing: border-box;
         }
 
         /* LOCATIE */
         .loc-auto {
             background: white; border: 1px solid #ddd; border-radius: 12px; padding: 15px;
-            margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; box-sizing: border-box;
+            margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; box-sizing: border-box;
         }
         .loc-txt { font-weight: 700; font-size: 0.9rem; color: #555; }
 
-        /* ACTIVE TIMER */
+        /* ACTIVE PANEL */
         .active-panel {
             background: var(--glass); border-radius: 30px; padding: 40px 20px;
             text-align: center; margin-top: 20px; box-shadow: var(--shadow);
@@ -152,16 +161,13 @@
         .btn-start { background: var(--brand); }
         .btn-stop { background: var(--danger); }
         .btn-pause { background: var(--warning); color: #333; }
-        
-        /* BUTON FOTO NOU (STYLIZED LABEL) */
         .btn-photo-label {
             width: 100%; padding: 15px; background: var(--photo-btn); border-radius: 12px;
             font-size: 1rem; font-weight: bold; color: white; cursor: pointer;
             margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px;
-            box-shadow: 0 4px 10px rgba(41, 128, 185, 0.4); transition: transform 0.1s;
+            box-shadow: 0 4px 10px rgba(41, 128, 185, 0.4); transition: transform 0.1s; box-sizing: border-box;
         }
         .btn-photo-label:active { transform: scale(0.98); }
-
         .btn-pdf { background: #c0392b; color: white; margin-top: 10px; font-size: 0.9rem; padding: 12px; border-radius: 8px; width: 100%; border:none; cursor:pointer;}
         .btn-small-del { background: #c0392b; color: white; border:none; border-radius:5px; padding:2px 8px; font-size:0.7rem; cursor:pointer; }
         .btn-add { background: var(--brand); color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 30%; font-weight:bold;}
@@ -189,6 +195,8 @@
             padding: 10px; border-bottom: 1px solid #eee; font-weight: 600;
         }
 
+        #map { height: 300px; width: 100%; border-radius: 10px; border: 1px solid #ccc; margin-top: 15px; z-index: 1; }
+
         /* CALENDAR */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; margin-top: 10px; }
         .cal-head { font-size: 0.75rem; font-weight: 800; color: #7f8c8d; }
@@ -202,7 +210,6 @@
         .cal-day.today { border: 2px solid var(--dark); }
         .cal-day.selected { transform: scale(1.1); box-shadow: 0 0 10px rgba(0,0,0,0.2); border: 2px solid var(--brand); }
 
-        /* LEGENDA */
         .legend-box { display: flex; gap: 10px; margin-bottom: 10px; background: #f4f6f8; padding: 10px; border-radius: 8px; justify-content: center;}
         .legend-item { font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; gap: 4px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; }
@@ -267,6 +274,21 @@
                 </select>
             </div>
 
+            <div style="width:100%; margin-top:10px; text-align:left;">
+                <label style="font-weight:bold; color:#555; display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" id="driver-check" onchange="toggleDriverBox()" style="width:20px; height:20px;">
+                    🚗 Conduci azi?
+                </label>
+            </div>
+
+            <div id="driver-details" class="driver-box hidden">
+                <label style="font-weight:bold; font-size:0.8rem; color:#555;">Alege Mașina:</label>
+                <select id="car-selector" class="car-select">
+                    <option value="" disabled selected>-- Alege Mașina --</option>
+                </select>
+                <label style="font-weight:bold; font-size:0.8rem; color:#555;">Km la plecare:</label>
+                <input type="number" id="km-start" class="km-input" placeholder="Ex: 125000">
+            </div>
             <div class="loc-auto">
                 <span style="font-size:1.5rem;">📡</span>
                 <div class="loc-txt" id="loc-status">Locație Automată</div>
@@ -277,13 +299,14 @@
 
         <div id="active-panel" class="active-panel hidden">
             <h2 id="active-user" style="margin:0;">Angajat</h2>
-            <p id="active-site" style="font-weight:800; color:var(--brand); margin:5px 0;">Șantier</p>
             <p id="active-loc" style="color:#666; font-size:0.8rem;">Locație GPS</p>
             
             <div style="margin:30px 0;">
                 <div id="status-badge" class="status-badge">ACTIV</div>
                 <div class="timer-val" id="timer-val">0h 0m</div>
-                <div style="margin-top:10px; font-weight:600; color:#555;">Pauză totală: <span id="pause-val">0m</span></div>
+                <p id="active-site" style="font-weight:800; color:var(--brand); margin:10px 0;">Șantier</p>
+                <p id="active-car" style="color:#2980b9; font-weight:bold; font-size:0.9rem; margin:0; display:none;"></p>
+                <div id="pause-display" style="margin-top:10px; font-weight:600; color:#555;">Pauză totală: 0m</div>
             </div>
 
             <div id="work-controls" style="width:100%">
@@ -292,12 +315,15 @@
             </div>
 
             <div id="stop-confirm-box" class="stop-confirm-box hidden">
-                <h3 style="margin-top:0;">Dorești să faci o poză?</h3>
                 
+                <div id="km-stop-section" style="width:100%; margin-bottom:15px; display:none; text-align:left;">
+                    <label style="font-weight:bold; color:#2c3e50;">🏁 Km la sosire:</label>
+                    <input type="number" id="km-stop" class="km-input" placeholder="Ex: 125150">
+                </div>
+
+                <h3 style="margin-top:0;">Dorești să faci o poză?</h3>
                 <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoUpload(this)">
-                <label for="photo-input" class="btn-photo-label">
-                    📷 DA, FĂ POZĂ
-                </label>
+                <label for="photo-input" class="btn-photo-label">📷 DA, FĂ POZĂ</label>
                 
                 <div id="photo-status" style="font-size:0.8rem; color:#27ae60; margin-top:5px; display:none; font-weight:bold;">Imagine Atașată! ✅</div>
                 <button class="btn btn-stop" style="background:#7f8c8d; margin-top:10px;" onclick="finalizeStop(false)">OMITE (FĂRĂ POZĂ)</button>
@@ -334,6 +360,15 @@
             </div>
 
             <div class="admin-card">
+                <h4 style="margin:0 0 15px 0;">🚗 Gestiune Flotă</h4>
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <input type="text" id="new-car-plate" class="inp" placeholder="Nr. Înmatriculare (B-99-GLB)" style="width:70%;">
+                    <button class="btn-add" onclick="addNewCar()">Adaugă</button>
+                </div>
+                <div id="admin-car-list-container"></div>
+            </div>
+
+            <div class="admin-card">
                 <h4 style="margin:0 0 15px 0;">📝 Organizare & Avizier</h4>
                 <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #eee;">
                     <label style="font-size:0.8rem; font-weight:bold;">Data Dispoziție (ex: 06 Dec):</label>
@@ -342,12 +377,15 @@
                 <div class="team-edit-row"><input class="inp" type="text" id="tm1-n" placeholder="Echipa 1"><input class="inp" type="text" id="tm1-l" placeholder="Locație"><input class="inp" type="text" id="tm1-t" placeholder="07:30"></div>
                 <div class="team-edit-row"><input class="inp" type="text" id="tm2-n" placeholder="Echipa 2"><input class="inp" type="text" id="tm2-l" placeholder="Locație"><input class="inp" type="text" id="tm2-t" placeholder="Ora"></div>
                 <div class="team-edit-row"><input class="inp" type="text" id="tm3-n" placeholder="Echipa 3"><input class="inp" type="text" id="tm3-l" placeholder="Locație"><input class="inp" type="text" id="tm3-t" placeholder="Ora"></div>
+                <div class="team-edit-row"><input class="inp" type="text" id="tm4-n" placeholder="Echipa 4"><input class="inp" type="text" id="tm4-l" placeholder="Locație"><input class="inp" type="text" id="tm4-t" placeholder="Ora"></div>
+                <div class="team-edit-row"><input class="inp" type="text" id="tm5-n" placeholder="Echipa 5"><input class="inp" type="text" id="tm5-l" placeholder="Locație"><input class="inp" type="text" id="tm5-t" placeholder="Ora"></div>
+                <div class="team-edit-row"><input class="inp" type="text" id="tm6-n" placeholder="Echipa 6"><input class="inp" type="text" id="tm6-l" placeholder="Locație"><input class="inp" type="text" id="tm6-t" placeholder="Ora"></div>
                 <button onclick="saveTeams()" style="width:100%; background:var(--brand); color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">Actualizează</button>
             </div>
 
             <div class="admin-card">
                 <h4 style="margin:0 0 10px 0;">🗺️ Poziții Live</h4>
-                <div id="map" style="height:250px; width:100%; border-radius:10px; border:1px solid #ccc;"></div>
+                <div id="map"></div>
                 <button onclick="refreshMap()" style="width:100%; padding:10px; margin-top:10px; border:1px solid #ccc; background:#f9f9f9; border-radius:8px;">🔄 Actualizare</button>
             </div>
 
@@ -386,6 +424,8 @@
                     <div id="stats-list"></div>
                     <div style="font-weight:bold; color:var(--brand); margin-top:15px; margin-bottom:5px;">PE ȘANTIERE:</div>
                     <div id="site-stats-list"></div>
+                    <div style="font-weight:bold; color:var(--brand); margin-top:15px; margin-bottom:5px;">PE MAȘINI (KM):</div>
+                    <div id="car-stats-list"></div>
                 </div>
             </div>
 
@@ -395,7 +435,7 @@
     <img id="logo-for-pdf" src="Galabau-Victor-Logo.png" style="display:none;">
 
     <script>
-        // 1. CONFIGURARE FIREBASE
+        // 1. FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyCoWS4CDB-xATg3ZsWhuaBzVvjeCGrL4X4",
             authDomain: "galabau-victor.firebaseapp.com",
@@ -414,7 +454,12 @@
         } catch(e) { console.log(e); }
 
         // 2. STATE
-        let app = { user: null, site: null, startT: 0, isPaused: false, pauseStartT: 0, totalPause: 0, docId: null, locName: "GPS", photoBase64: null };
+        let app = { 
+            user: null, site: null, 
+            startT: 0, isPaused: false, pauseStartT: 0, totalPause: 0, 
+            docId: null, locName: "GPS", photoBase64: null,
+            car: null, kmStart: 0 
+        };
         let timerInt, mapInst, mapMarkers=[], viewDate=new Date();
         let watchID = null;
 
@@ -451,9 +496,10 @@
             loadTeams();
             loadWorkers();
             loadSites();
+            loadCars(); 
             checkAndCloseOldShifts();
             
-            const saved = localStorage.getItem('vt_v37');
+            const saved = localStorage.getItem('vt_v41');
             if(saved) {
                 const s = JSON.parse(saved);
                 const today = new Date().toLocaleDateString('ro-RO');
@@ -491,7 +537,7 @@
             }
         }
 
-        // --- MANAGEMENT WORKERS ---
+        // --- MANAGERS ---
         async function loadWorkers() {
             const doc = await window.db.collection('settings').doc('workers_final').get();
             let workers = ["Sandu", "Nicu", "Vadim", "Sorin", "Fani", "Ovidiu"]; 
@@ -528,23 +574,17 @@
             loadWorkers();
         }
 
-        // --- MANAGEMENT SITES ---
+        // --- SITES ---
         async function loadSites() {
             const doc = await window.db.collection('settings').doc('sites_v32').get();
             let sites = [];
             if(doc.exists && doc.data().list) sites = doc.data().list;
-            
             const sel = document.getElementById('site-selector');
             sel.innerHTML = `<option value="" disabled selected>-- Alege Șantier --</option>`;
-            sites.forEach(s => {
-                sel.innerHTML += `<option value="${s}">${s}</option>`;
-            });
-
+            sites.forEach(s => { sel.innerHTML += `<option value="${s}">${s}</option>`; });
             const admList = document.getElementById('admin-site-list-container');
             admList.innerHTML = "";
-            sites.forEach(s => {
-                admList.innerHTML += `<div class="admin-list-row"><span>🏗️ ${s}</span><button class="btn-small-del" onclick="deleteSite('${s}')">Șterge</button></div>`;
-            });
+            sites.forEach(s => { admList.innerHTML += `<div class="admin-list-row"><span>🏗️ ${s}</span><button class="btn-small-del" onclick="deleteSite('${s}')">Șterge</button></div>`; });
         }
         async function addNewSite() {
             const name = document.getElementById('new-site-name').value;
@@ -564,6 +604,40 @@
             loadSites();
         }
 
+        // --- CARS ---
+        async function loadCars() {
+            const doc = await window.db.collection('settings').doc('vehicles_v38').get();
+            let cars = [];
+            if(doc.exists && doc.data().list) cars = doc.data().list;
+            
+            const sel = document.getElementById('car-selector');
+            sel.innerHTML = `<option value="" disabled selected>-- Alege Mașina --</option>`;
+            cars.forEach(c => { sel.innerHTML += `<option value="${c}">${c}</option>`; });
+
+            const admList = document.getElementById('admin-car-list-container');
+            admList.innerHTML = "";
+            cars.forEach(c => {
+                admList.innerHTML += `<div class="admin-list-row"><span>🚗 ${c}</span><button class="btn-small-del" onclick="deleteCar('${c}')">Șterge</button></div>`;
+            });
+        }
+        async function addNewCar() {
+            const plate = document.getElementById('new-car-plate').value;
+            if(!plate) return;
+            const doc = await window.db.collection('settings').doc('vehicles_v38').get();
+            let list = doc.exists ? doc.data().list : [];
+            list.push(plate);
+            await window.db.collection('settings').doc('vehicles_v38').set({list: list}, {merge:true});
+            document.getElementById('new-car-plate').value="";
+            loadCars();
+        }
+        async function deleteCar(plate) {
+            if(!confirm("Ștergi?")) return;
+            const doc = await window.db.collection('settings').doc('vehicles_v38').get();
+            let list = doc.data().list.filter(c => c !== plate);
+            await window.db.collection('settings').doc('vehicles_v38').update({list: list});
+            loadCars();
+        }
+
         // AVIZIER
         function loadTeams() {
             if(!window.db) return;
@@ -573,7 +647,8 @@
                 if(d.exists) {
                     const data = d.data();
                     if(data.data_avizier) document.getElementById('avizier-label-text').innerText = `📋 DISPOZIȚII: ${data.data_avizier}`;
-                    const teams = [data.t1, data.t2, data.t3].filter(t => t && t.nume);
+                    // EXTINDERE LA 6 ECHIPE
+                    const teams = [data.t1, data.t2, data.t3, data.t4, data.t5, data.t6].filter(t => t && t.nume);
                     if(teams.length === 0) container.innerHTML = "<div style='text-align:center;color:#999'>Nicio dispoziție momentan.</div>";
                     teams.forEach((t, i) => {
                         container.innerHTML += `<div class="team-display-card t${i+1}"><div><div class="td-name">Echipa ${i+1}: ${t.nume}</div><div class="td-loc">📍 ${t.loc}</div></div><div class="td-time">🕒 ${t.ora}</div></div>`;
@@ -586,16 +661,26 @@
                 data_avizier: document.getElementById('avizier-date-input').value,
                 t1: { nume: document.getElementById('tm1-n').value, loc: document.getElementById('tm1-l').value, ora: document.getElementById('tm1-t').value },
                 t2: { nume: document.getElementById('tm2-n').value, loc: document.getElementById('tm2-l').value, ora: document.getElementById('tm2-t').value },
-                t3: { nume: document.getElementById('tm3-n').value, loc: document.getElementById('tm3-l').value, ora: document.getElementById('tm3-t').value }
+                t3: { nume: document.getElementById('tm3-n').value, loc: document.getElementById('tm3-l').value, ora: document.getElementById('tm3-t').value },
+                t4: { nume: document.getElementById('tm4-n').value, loc: document.getElementById('tm4-l').value, ora: document.getElementById('tm4-t').value },
+                t5: { nume: document.getElementById('tm5-n').value, loc: document.getElementById('tm5-l').value, ora: document.getElementById('tm5-t').value },
+                t6: { nume: document.getElementById('tm6-n').value, loc: document.getElementById('tm6-l').value, ora: document.getElementById('tm6-t').value }
             };
             window.db.collection('settings').doc('echipe_v10').set(data, {merge:true});
             alert("✅ Avizier actualizat!");
         }
 
-        // WORKER & LIVE LOCATION
+        // WORKER FLOW
         function selectUser(el, name) {
             document.querySelectorAll('.worker-item').forEach(c => c.classList.remove('selected'));
             el.classList.add('selected'); app.user = name;
+        }
+
+        function toggleDriverBox() {
+            const check = document.getElementById('driver-check');
+            const box = document.getElementById('driver-details');
+            if(check.checked) box.classList.remove('hidden');
+            else box.classList.add('hidden');
         }
 
         function initStart() {
@@ -604,16 +689,24 @@
             if(!siteVal) return alert("Selectează Șantierul!");
             app.site = siteVal;
 
+            const isDriver = document.getElementById('driver-check').checked;
+            if(isDriver) {
+                const car = document.getElementById('car-selector').value;
+                const km = document.getElementById('km-start').value;
+                if(!car || !km) return alert("Selectează Mașina și Km!");
+                app.car = car;
+                app.kmStart = parseInt(km);
+            }
+
             document.getElementById('loc-status').innerText = "📡 Se caută GPS...";
             if(!navigator.geolocation) return startShift("Fără GPS", 0, 0);
 
-            // REAL TIME TRACKING
             watchID = navigator.geolocation.watchPosition(async (pos) => {
                 if(app.docId) {
                     await window.db.collection('pontaje_final_v1').doc(app.docId).update({
                         lat: pos.coords.latitude,
                         lon: pos.coords.longitude,
-                        lastUpdate: firebase.firestore.FieldValue.serverTimestamp() // PT ADMIN MAP
+                        lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
             }, (e)=>{console.log(e)}, {enableHighAccuracy:true});
@@ -633,12 +726,18 @@
             const now = Date.now();
             app.startT = now; app.locName = loc; app.totalPause = 0; app.isPaused = false; app.photoBase64 = null;
 
-            const doc = await window.db.collection('pontaje_final_v1').add({
+            let data = {
                 nume: app.user, santier: app.site, locatie: loc, lat: lat, lon: lon,
                 start: firebase.firestore.Timestamp.fromMillis(now),
                 status: 'activ', luna: new Date().getMonth()+1, an: new Date().getFullYear(), zi: new Date().getDate(),
                 lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            };
+            if(app.car) {
+                data.masina = app.car;
+                data.kmStart = app.kmStart;
+            }
+
+            const doc = await window.db.collection('pontaje_final_v1').add(data);
             app.docId = doc.id;
             saveLocal(); restoreUI();
         }
@@ -658,6 +757,7 @@
         function showStopConfirm() {
             document.getElementById('work-controls').classList.add('hidden');
             document.getElementById('stop-confirm-box').classList.remove('hidden');
+            if(app.car) document.getElementById('km-stop-section').style.display = 'block';
         }
 
         function handlePhotoUpload(input) {
@@ -685,6 +785,14 @@
         }
 
         async function finalizeStop(hasPhoto) {
+            let kmStopVal = 0;
+            if(app.car) {
+                const inp = document.getElementById('km-stop').value;
+                if(!inp) return alert("Introdu Km la sosire!");
+                kmStopVal = parseInt(inp);
+                if(kmStopVal < app.kmStart) return alert("Km Stop mai mici ca Start!");
+            }
+
             const now = Date.now();
             let finalPause = app.totalPause;
             if(app.isPaused) finalPause += (now - app.pauseStartT);
@@ -695,14 +803,18 @@
                 ore: parseFloat(hours), pauza_min: Math.round(finalPause/60000), status: 'finalizat'
             };
             if(hasPhoto && app.photoBase64) updateData.poza = app.photoBase64;
+            if(app.car) {
+                updateData.kmStop = kmStopVal;
+                updateData.kmParcursi = kmStopVal - app.kmStart;
+            }
 
             await window.db.collection('pontaje_final_v1').doc(app.docId).update(updateData);
             if(watchID) navigator.geolocation.clearWatch(watchID);
-            localStorage.removeItem('vt_v37'); location.reload();
+            localStorage.removeItem('vt_v41'); location.reload();
         }
 
         async function forceClose(s) {
-            localStorage.removeItem('vt_v37'); location.reload();
+            localStorage.removeItem('vt_v41'); location.reload();
         }
 
         function restoreUI() {
@@ -711,6 +823,13 @@
             document.getElementById('active-user').innerText = app.user;
             document.getElementById('active-loc').innerText = "📍 " + app.locName;
             document.getElementById('active-site').innerText = "🏗️ " + (app.site || "Șantier");
+            
+            if(app.car) {
+                const p = document.getElementById('active-car');
+                p.style.display = 'block';
+                p.innerText = `🚙 ${app.car} (Start: ${app.kmStart})`;
+            }
+
             const btn = document.getElementById('btn-pause');
             const badge = document.getElementById('status-badge');
             if(app.isPaused) {
@@ -728,18 +847,27 @@
             const now = Date.now();
             let workMs = app.isPaused ? (app.pauseStartT - app.startT - app.totalPause) : (now - app.startT - app.totalPause);
             let pauseMs = app.isPaused ? (app.totalPause + (now - app.pauseStartT)) : app.totalPause;
+            
             document.getElementById('timer-val').innerText = formatHuman(workMs);
-            document.getElementById('pause-val').innerText = Math.round(pauseMs/60000) + "m";
+            
+            let pauseText = Math.round(pauseMs/60000) + "m";
+            if(app.isPaused) {
+                let currentPause = Math.floor((now - app.pauseStartT)/1000);
+                let cpM = Math.floor(currentPause/60);
+                let cpS = currentPause%60;
+                pauseText += ` (Acum: ${cpM}m ${cpS}s)`;
+            }
+            document.getElementById('pause-display').innerText = "Pauză totală: " + pauseText;
         }
 
-        function saveLocal() { localStorage.setItem('vt_v37', JSON.stringify(app)); }
+        function saveLocal() { localStorage.setItem('vt_v41', JSON.stringify(app)); }
 
         // ADMIN
         function openAdmin() {
             if(prompt("Parola:")==="PASSAT") {
                 document.getElementById('admin-screen').style.display='block';
                 setTimeout(initMap, 500); renderCalendar();
-                loadWorkers(); loadSites();
+                loadWorkers(); loadSites(); loadCars();
                 checkAndCloseOldShifts();
             } else alert("Greșit.");
         }
@@ -752,7 +880,6 @@
             }
             setTimeout(() => mapInst.invalidateSize(), 300);
             refreshMap();
-            // Auto-refresh map every 10s
             setInterval(refreshMap, 10000);
         }
         function refreshMap() {
@@ -762,14 +889,11 @@
                 snaps.forEach(doc => {
                     const d = doc.data();
                     let st = d.status==='activ' ? 'Muncește' : 'Pauză';
-                    
-                    // Time Calculation
                     let timeSeen = "acum";
                     if(d.lastUpdate) {
                         const diff = (new Date() - d.lastUpdate.toDate()) / 60000;
                         timeSeen = Math.floor(diff) + "m";
                     }
-
                     if(d.lat) {
                         const m = L.marker([d.lat, d.lon])
                             .bindTooltip(`<b>${d.nume}</b><br>${st}<br>🕒 Văzut: ${timeSeen}`, {permanent:true, direction:'right', className:'map-label'})
@@ -791,7 +915,7 @@
             document.getElementById('cal-month').innerText = `${monthNames[m]} ${y}`;
 
             const snaps = await window.db.collection('pontaje_final_v1').where('luna','==',m+1).where('an','==',y).get();
-            let dataMap = {}, totals = {}, siteTotals = {};
+            let dataMap = {}, totals = {}, siteTotals = {}, carTotals = {};
             snaps.forEach(doc => {
                 const d = doc.data();
                 if(!dataMap[d.zi]) dataMap[d.zi] = [];
@@ -801,8 +925,12 @@
                     let s = d.santier || "Nespecificat";
                     if(!siteTotals[s]) siteTotals[s] = 0; siteTotals[s] += d.ore;
                 }
+                if(d.masina && d.kmParcursi) {
+                    if(!carTotals[d.masina]) carTotals[d.masina] = 0;
+                    carTotals[d.masina] += d.kmParcursi;
+                }
             });
-            window.monthlyTotals = totals; window.siteTotals = siteTotals; window.monthData = dataMap;
+            window.monthlyTotals = totals; window.siteTotals = siteTotals; window.carTotals = carTotals; window.monthData = dataMap;
 
             const daysInMonth = new Date(y, m+1, 0).getDate();
             const startDay = new Date(y, m, 1).getDay(); 
@@ -814,10 +942,8 @@
                 const date = new Date(y, m, d);
                 let cls = 'cal-day';
                 let content = d;
-                if(date.getDay() === 0) { 
-                    cls += ' sunday';
-                    content = `${d}`;
-                } else if(dataMap[d]) {
+                if(date.getDay() === 0) { cls += ' sunday'; content = `${d}`; }
+                else if(dataMap[d]) {
                     const hasErr = dataMap[d].some(x=>x.status==='eroare_neinchis');
                     cls += hasErr ? ' error' : ' has-data';
                 }
@@ -849,9 +975,11 @@
                 let photoHtml = item.poza ? `<br><a href="${item.poza}" download="poza.jpg" style="font-size:0.7rem; color:blue">📷 Vezi Poză</a>` : '';
                 if(item.status==='eroare_neinchis') status = `<span style="color:red">⚠️ Eroare</span>`;
                 
+                let carInfo = item.masina ? `<br><span style="font-size:0.8rem; color:#d35400;">🚗 ${item.masina} (${item.kmParcursi||0} km)</span>` : '';
+
                 list.innerHTML += `
                     <div class="day-detail-item">
-                        <div><strong>${item.nume}</strong> <small>(${item.santier||'Nespecificat'})</small><br><small style="color:#777">${item.locatie}</small>${photoHtml}</div>
+                        <div><strong>${item.nume}</strong> <small>(${item.santier||'?'})</small>${carInfo}<br><small style="color:#777">${item.locatie}</small>${photoHtml}</div>
                         <div style="text-align:right">
                             <span class="stat-badge ${item.status==='activ'?'bg-green':(item.status==='pauza'?'bg-yellow':'bg-green')}">${status}</span>
                             <span class="stat-badge bg-yellow">${pauza}</span>
@@ -864,6 +992,7 @@
             const panel = document.getElementById('stats-panel');
             const list = document.getElementById('stats-list');
             const siteList = document.getElementById('site-stats-list');
+            const carList = document.getElementById('car-stats-list');
             panel.classList.toggle('hidden');
             
             if(!panel.classList.contains('hidden')) {
@@ -873,12 +1002,17 @@
                 sortedW.forEach(n => {
                     list.innerHTML += `<div style="padding:5px 0; border-bottom:1px dashed #ccc; display:flex; justify-content:space-between;"><b>${n}</b> <span>${formatHuman(window.monthlyTotals[n]*3600000)}</span></div>`;
                 });
-
                 // Sites
                 siteList.innerHTML = "";
                 const sortedS = Object.keys(window.siteTotals || {}).sort((a,b) => window.siteTotals[b] - window.siteTotals[a]);
                 sortedS.forEach(s => {
                     siteList.innerHTML += `<div style="padding:5px 0; border-bottom:1px dashed #ccc; display:flex; justify-content:space-between;"><b>${s}</b> <span>${formatHuman(window.siteTotals[s]*3600000)}</span></div>`;
+                });
+                // Cars
+                carList.innerHTML = "";
+                const sortedC = Object.keys(window.carTotals || {}).sort((a,b) => window.carTotals[b] - window.carTotals[a]);
+                sortedC.forEach(c => {
+                    carList.innerHTML += `<div style="padding:5px 0; border-bottom:1px dashed #ccc; display:flex; justify-content:space-between;"><b>${c}</b> <span>${window.carTotals[c]} km</span></div>`;
                 });
             }
         }
@@ -889,7 +1023,6 @@
             const doc = new jsPDF();
             const monthName = document.getElementById('cal-month').innerText;
             
-            // LOGO
             const logo = document.getElementById('logo-for-pdf');
             if(logo && logo.src) {
                 try {
@@ -904,7 +1037,6 @@
             }
 
             doc.setFontSize(18); doc.setTextColor(0, 148, 50);
-            // Title Centered
             doc.text(`RAPORT LUNAR - ${monthName}`, 105, 50, { align: 'center' });
             doc.setFontSize(12); doc.setTextColor(0,0,0);
             doc.text("GalaBau Victor", 105, 57, { align: 'center' });
@@ -919,71 +1051,71 @@
 
             let rawDocs = [];
             snaps.forEach(doc => rawDocs.push(doc.data()));
-            // SORTARE CRONOLOGICA
             rawDocs.sort((a, b) => a.start.seconds - b.start.seconds);
 
-            let report = {}, siteReport = {};
+            let report = {}, siteReport = {}, carReport = {}, carLogs = {};
             
             rawDocs.forEach(d => {
                 if(!report[d.nume]) report[d.nume] = [];
                 const start = d.start.toDate().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'});
                 const end = d.stop ? d.stop.toDate().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'}) : "Activ";
-                let s = d.santier || "Nespecificat";
+                let s = d.santier || "-";
+                let car = d.masina ? `${d.masina} (${d.kmParcursi||0}km)` : "-";
                 
-                // Calcul Ore exacte
-                let hoursVal = 0;
-                if(d.ore) hoursVal = d.ore;
+                let hoursVal = d.ore || 0;
                 
                 report[d.nume].push({
-                    row: [`${d.zi}/${d.luna}`, cleanText(s), cleanText(d.locatie), `${start}-${end}`, formatHuman(hoursVal*3600000)],
+                    row: [`${d.zi}/${d.luna}`, cleanText(s), car, cleanText(d.locatie), `${start}-${end}`, formatHuman(hoursVal*3600000)],
                     val: hoursVal
                 });
                 
                 if(d.ore) {
-                    if(!siteReport[s]) siteReport[s] = 0;
-                    siteReport[s] += d.ore;
+                    if(!siteReport[s]) siteReport[s] = 0; siteReport[s] += d.ore;
+                }
+                
+                if(d.masina && d.kmStop) {
+                    if(!carLogs[d.masina]) carLogs[d.masina] = [];
+                    carLogs[d.masina].push([
+                       `${d.zi}/${d.luna}`,
+                       d.nume,
+                       d.kmStart,
+                       d.kmStop,
+                       (d.kmStop - d.kmStart) + " km"
+                    ]);
+                    
+                    if(!carReport[d.masina]) carReport[d.masina] = 0; carReport[d.masina] += d.kmParcursi;
                 }
             });
 
-            // TABLE 1: Angajati
             Object.keys(report).forEach(name => {
-                // Check if page break needed
                 if(yPos > 250) { doc.addPage(); yPos = 20; }
-                
                 doc.setFontSize(14); doc.setTextColor(0, 148, 50);
                 doc.text(`Angajat: ${name}`, 14, yPos);
                 yPos += 6;
-
-                // Prepare rows
                 let rows = report[name].map(r => r.row);
                 let totalH = report[name].reduce((acc, curr) => acc + curr.val, 0);
-
                 doc.autoTable({
                     startY: yPos,
-                    head: [['Data', 'Santier', 'Locatie', 'Interval', 'Ore']],
+                    head: [['Data', 'Santier', 'Masina', 'Locatie', 'Interval', 'Ore']],
                     body: rows,
                     theme: 'grid',
-                    styles: { halign: 'center' }, // CENTRARE GENERALA
-                    headStyles: { halign: 'center', fillColor: [0, 148, 50] }, // VERDE
-                    // TOTAL ROW
-                    foot: [['', '', '', 'TOTAL LUNAR:', formatHuman(totalH * 3600000)]],
+                    styles: { halign: 'center', fontSize: 8 },
+                    headStyles: { halign: 'center', fillColor: [0, 148, 50] },
+                    foot: [['', '', '', '', 'TOTAL:', formatHuman(totalH * 3600000)]],
                     footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0], fontStyle: 'bold', halign: 'center' }
                 });
                 yPos = doc.lastAutoTable.finalY + 15;
             });
 
-            // TABLE 2: SANTIERE
             doc.addPage();
             yPos = 20;
-            doc.setFontSize(18); doc.setTextColor(0, 148, 50);
+            doc.setFontSize(16); doc.setTextColor(0, 148, 50);
             doc.text("TOTAL ORE PER SANTIER", 105, yPos, { align: 'center' });
-            yPos += 15;
-            
+            yPos += 10;
             let siteRows = [];
             Object.keys(siteReport).forEach(s => {
                 siteRows.push([cleanText(s), formatHuman(siteReport[s]*3600000)]);
             });
-            
             doc.autoTable({
                 startY: yPos,
                 head: [['Nume Santier', 'Total Ore']],
@@ -992,6 +1124,32 @@
                 styles: { halign: 'center' },
                 headStyles: { fillColor: [44, 62, 80], halign: 'center' }
             });
+
+            if(Object.keys(carLogs).length > 0) {
+                doc.addPage();
+                yPos = 20;
+                doc.setFontSize(16); doc.setTextColor(211, 84, 0);
+                doc.text("JURNAL FLOTA AUTO (Fahrtenbuch)", 105, yPos, { align: 'center' });
+                yPos += 15;
+
+                Object.keys(carLogs).forEach(plate => {
+                    if(yPos > 250) { doc.addPage(); yPos = 20; }
+                    doc.setFontSize(12); doc.setTextColor(0,0,0);
+                    doc.text(`Masina: ${plate}`, 14, yPos);
+                    yPos += 5;
+                    doc.autoTable({
+                        startY: yPos,
+                        head: [['Data', 'Sofer', 'Km Start', 'Km Stop', 'Distanta']],
+                        body: carLogs[plate],
+                        theme: 'grid',
+                        styles: { halign: 'center' },
+                        headStyles: { fillColor: [211, 84, 0], halign: 'center' },
+                        foot: [['', '', '', 'TOTAL:', carReport[plate] + ' km']],
+                        footStyles: { fillColor: [250, 229, 211], textColor: [0,0,0], fontStyle: 'bold', halign: 'center' }
+                    });
+                    yPos = doc.lastAutoTable.finalY + 15;
+                });
+            }
 
             doc.save(`Raport_GalaBau_${monthName}.pdf`);
         }
