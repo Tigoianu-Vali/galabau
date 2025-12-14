@@ -35,6 +35,7 @@
             --sunday-bg: #ffebee;
             --admin-bg: #2c3e50;
             --photo-btn: #2980b9;
+            --mat-btn: #8e44ad;
         }
 
         body {
@@ -111,7 +112,7 @@
         .w-emoji { font-size: 3rem; display: block; margin-bottom: 5px; line-height: 1; }
         .w-label { font-weight: 800; font-size: 0.9rem; }
 
-        .site-select, .car-select, .km-input {
+        .site-select, .car-select, .km-input, .mat-input {
             width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #ddd;
             font-size: 1rem; margin-bottom: 10px; background: white;
             color: var(--dark); box-shadow: 0 4px 10px rgba(0,0,0,0.05); box-sizing: border-box;
@@ -172,6 +173,8 @@
         .btn-start { background: var(--brand); }
         .btn-stop { background: var(--danger); }
         .btn-pause { background: var(--warning); color: #333; }
+        .btn-mat { background: var(--mat-btn); color: white; }
+        
         .btn-photo-label {
             width: 100%; padding: 15px; background: var(--photo-btn); border-radius: 12px;
             font-size: 1rem; font-weight: bold; color: white; cursor: pointer;
@@ -182,6 +185,16 @@
         .btn-pdf { background: #c0392b; color: white; margin-top: 10px; font-size: 0.9rem; padding: 12px; border-radius: 8px; width: 100%; border:none; cursor:pointer;}
         .btn-small-del { background: #c0392b; color: white; border:none; border-radius:5px; padding:2px 8px; font-size:0.7rem; cursor:pointer; }
         .btn-add { background: var(--brand); color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 30%; font-weight:bold;}
+
+        .mat-add-box {
+            width: 100%; background: #f3e5f5; padding: 15px; border-radius: 15px;
+            margin-top: 15px; text-align: left; border: 1px solid #e1bee7; box-sizing: border-box;
+        }
+        .mat-list-item {
+            background: white; padding: 8px; border-radius: 8px; margin-top: 5px;
+            font-size: 0.9rem; font-weight: bold; color: #4a148c; border: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
 
         .admin-trigger {
             position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.8);
@@ -319,6 +332,36 @@
             </div>
 
             <div id="work-controls" style="width:100%">
+                <button class="btn btn-mat" id="btn-mat" onclick="toggleMaterialBox()">📦 ADAUGĂ MATERIALE</button>
+                
+                <div id="material-box" class="mat-add-box hidden">
+                    <label style="font-weight:bold; color:#555; font-size:0.8rem;">Ce material?</label>
+                    <input type="text" id="mat-name" class="mat-input" placeholder="Ex: Ciment, Nisip, Borduri">
+                    
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1">
+                            <label style="font-weight:bold; color:#555; font-size:0.8rem;">Cantitate</label>
+                            <input type="number" id="mat-qty" class="mat-input" placeholder="0">
+                        </div>
+                        <div style="flex:1">
+                            <label style="font-weight:bold; color:#555; font-size:0.8rem;">Unitate</label>
+                            <select id="mat-unit" class="mat-input">
+                                <option value="Buc">Buc</option>
+                                <option value="Saci">Saci</option>
+                                <option value="m">Metri (m)</option>
+                                <option value="mp">mp (m²)</option>
+                                <option value="mc">mc (m³)</option>
+                                <option value="kg">kg</option>
+                                <option value="L">Litri</option>
+                                <option value="Palet">Palet</option>
+                                <option value="Rulou">Rulou</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-add" style="width:100%; background:#8e44ad;" onclick="saveMaterial()">💾 Salvează Material</button>
+                    <div id="active-mat-list" style="margin-top:10px;"></div>
+                </div>
+
                 <button class="btn btn-pause" id="btn-pause" onclick="togglePause()">☕ PAUZĂ</button>
                 <button class="btn btn-stop" onclick="showStopConfirm()">⏹ STOP ZI</button>
             </div>
@@ -486,7 +529,7 @@
             user: null, site: null, 
             startT: 0, isPaused: false, pauseStartT: 0, totalPause: 0, 
             docId: null, locName: "GPS", photoBase64: null, 
-            car: null, kmStart: 0, selFuelType: null 
+            car: null, kmStart: 0, selFuelType: null, materials: [] 
         };
         let timerInt, mapInst, mapMarkers=[], viewDate=new Date();
         let watchID = null;
@@ -505,11 +548,11 @@
 
         async function checkAndCloseOldShifts() {
             const yesterday = new Date(); yesterday.setHours(0,0,0,0);
-            const snaps = await window.db.collection('galabau.1st').where('status', 'in', ['activ', 'pauza']).where('start', '<', firebase.firestore.Timestamp.fromDate(yesterday)).get();
+            const snaps = await window.db.collection('galabau.final').where('status', 'in', ['activ', 'pauza']).where('start', '<', firebase.firestore.Timestamp.fromDate(yesterday)).get();
             if(!snaps.empty) {
                 snaps.forEach(doc => {
                     const forceStop = new Date(doc.data().start.toDate()); forceStop.setHours(23, 59, 59);
-                    window.db.collection('galabau.1st').doc(doc.id).update({status: 'eroare_neinchis', stop: firebase.firestore.Timestamp.fromDate(forceStop), ore: 0});
+                    window.db.collection('galabau.final').doc(doc.id).update({status: 'eroare_neinchis', stop: firebase.firestore.Timestamp.fromDate(forceStop), ore: 0});
                 });
             }
         }
@@ -522,8 +565,8 @@
             loadCars(); 
             checkAndCloseOldShifts();
             
-            // ATENTIE: Am schimbat si cheia de local storage ca sa nu incarce teste vechi
-            const saved = localStorage.getItem('vt_1st');
+            // ATENTIE: Noua cheie de sesiune "vt_final"
+            const saved = localStorage.getItem('vt_final');
             if(saved) {
                 const s = JSON.parse(saved);
                 const today = new Date().toLocaleDateString('ro-RO');
@@ -561,12 +604,12 @@
             }
         }
 
-        // --- MANAGERS (Am actualizat numele colectiilor cu _1st) ---
+        // --- MANAGERS (NOILE COLECTII _final) ---
         async function loadWorkers() {
-            const doc = await window.db.collection('settings').doc('workers_1st').get();
+            const doc = await window.db.collection('settings').doc('workers_final').get();
             let workers = ["Sandu", "Nicu", "Vadim", "Sorin", "Fani", "Ovidiu"]; 
             if(doc.exists && doc.data().list) workers = doc.data().list;
-            else window.db.collection('settings').doc('workers_1st').set({list: workers});
+            else window.db.collection('settings').doc('workers_final').set({list: workers});
             
             const grid = document.getElementById('main-worker-list');
             grid.innerHTML = "";
@@ -583,23 +626,23 @@
         async function addNewWorker() {
             const name = document.getElementById('new-worker-name').value;
             if(!name) return;
-            const doc = await window.db.collection('settings').doc('workers_1st').get();
+            const doc = await window.db.collection('settings').doc('workers_final').get();
             let list = doc.exists ? doc.data().list : [];
             list.push(name);
-            await window.db.collection('settings').doc('workers_1st').set({list: list}, {merge:true});
+            await window.db.collection('settings').doc('workers_final').set({list: list}, {merge:true});
             document.getElementById('new-worker-name').value="";
             loadWorkers();
         }
         async function deleteWorker(name) {
             if(!confirm("Ștergi?")) return;
-            const doc = await window.db.collection('settings').doc('workers_1st').get();
+            const doc = await window.db.collection('settings').doc('workers_final').get();
             let list = doc.data().list.filter(w => w !== name);
-            await window.db.collection('settings').doc('workers_1st').update({list: list});
+            await window.db.collection('settings').doc('workers_final').update({list: list});
             loadWorkers();
         }
 
         async function loadSites() {
-            const doc = await window.db.collection('settings').doc('sites_1st').get();
+            const doc = await window.db.collection('settings').doc('sites_final').get();
             let sites = [];
             if(doc.exists && doc.data().list) sites = doc.data().list;
             const sel = document.getElementById('site-selector');
@@ -612,23 +655,23 @@
         async function addNewSite() {
             const name = document.getElementById('new-site-name').value;
             if(!name) return;
-            const doc = await window.db.collection('settings').doc('sites_1st').get();
+            const doc = await window.db.collection('settings').doc('sites_final').get();
             let list = doc.exists ? doc.data().list : [];
             list.push(name);
-            await window.db.collection('settings').doc('sites_1st').set({list: list}, {merge:true});
+            await window.db.collection('settings').doc('sites_final').set({list: list}, {merge:true});
             document.getElementById('new-site-name').value="";
             loadSites();
         }
         async function deleteSite(name) {
             if(!confirm("Ștergi?")) return;
-            const doc = await window.db.collection('settings').doc('sites_1st').get();
+            const doc = await window.db.collection('settings').doc('sites_final').get();
             let list = doc.data().list.filter(s => s !== name);
-            await window.db.collection('settings').doc('sites_1st').update({list: list});
+            await window.db.collection('settings').doc('sites_final').update({list: list});
             loadSites();
         }
 
         async function loadCars() {
-            const doc = await window.db.collection('settings').doc('vehicles_1st').get();
+            const doc = await window.db.collection('settings').doc('vehicles_final').get();
             let cars = [];
             if(doc.exists && doc.data().list) cars = doc.data().list;
             
@@ -636,7 +679,7 @@
             sel.innerHTML = `<option value="" disabled selected>-- Alege Mașina --</option>`;
             cars.forEach(c => { sel.innerHTML += `<option value="${c}">${c}</option>`; });
 
-            const selEnd = document.getElementById('end-car-selector'); // Note: element might not exist in HTML but kept for safety
+            const selEnd = document.getElementById('end-car-selector');
             if(selEnd) {
                 selEnd.innerHTML = `<option value="" disabled selected>-- Alege Mașina --</option>`;
                 cars.forEach(c => { selEnd.innerHTML += `<option value="${c}">${c}</option>`; });
@@ -651,25 +694,25 @@
         async function addNewCar() {
             const plate = document.getElementById('new-car-plate').value;
             if(!plate) return;
-            const doc = await window.db.collection('settings').doc('vehicles_1st').get();
+            const doc = await window.db.collection('settings').doc('vehicles_final').get();
             let list = doc.exists ? doc.data().list : [];
             list.push(plate);
-            await window.db.collection('settings').doc('vehicles_1st').set({list: list}, {merge:true});
+            await window.db.collection('settings').doc('vehicles_final').set({list: list}, {merge:true});
             document.getElementById('new-car-plate').value="";
             loadCars();
         }
         async function deleteCar(plate) {
             if(!confirm("Ștergi?")) return;
-            const doc = await window.db.collection('settings').doc('vehicles_1st').get();
+            const doc = await window.db.collection('settings').doc('vehicles_final').get();
             let list = doc.data().list.filter(c => c !== plate);
-            await window.db.collection('settings').doc('vehicles_1st').update({list: list});
+            await window.db.collection('settings').doc('vehicles_final').update({list: list});
             loadCars();
         }
 
         // AVIZIER
         function loadTeams() {
             if(!window.db) return;
-            window.db.collection('settings').doc('echipe_1st').onSnapshot(d => {
+            window.db.collection('settings').doc('echipe_final').onSnapshot(d => {
                 const container = document.getElementById('teams-container');
                 container.innerHTML = "";
                 if(d.exists) {
@@ -693,7 +736,7 @@
                 t5: { nume: document.getElementById('tm5-n').value, loc: document.getElementById('tm5-l').value, ora: document.getElementById('tm5-t').value },
                 t6: { nume: document.getElementById('tm6-n').value, loc: document.getElementById('tm6-l').value, ora: document.getElementById('tm6-t').value }
             };
-            window.db.collection('settings').doc('echipe_1st').set(data, {merge:true});
+            window.db.collection('settings').doc('echipe_final').set(data, {merge:true});
             alert("✅ Avizier actualizat!");
         }
 
@@ -732,6 +775,47 @@
             el.classList.add('selected');
         }
 
+        // --- MATERIALS ---
+        function toggleMaterialBox() {
+            const box = document.getElementById('material-box');
+            box.classList.toggle('hidden');
+        }
+
+        async function saveMaterial() {
+            const name = document.getElementById('mat-name').value;
+            const qty = document.getElementById('mat-qty').value;
+            const unit = document.getElementById('mat-unit').value;
+
+            if(!name || !qty) return alert("Completează numele și cantitatea!");
+
+            const newMat = { name: name, qty: parseFloat(qty), unit: unit };
+            
+            if(!app.materials) app.materials = [];
+            app.materials.push(newMat);
+
+            // Update in DB (ATENTIE: galabau.final)
+            await window.db.collection('galabau.final').doc(app.docId).update({
+                materials: firebase.firestore.FieldValue.arrayUnion(newMat)
+            });
+
+            // Clear inputs
+            document.getElementById('mat-name').value = '';
+            document.getElementById('mat-qty').value = '';
+            
+            saveLocal();
+            renderActiveMaterials();
+        }
+
+        function renderActiveMaterials() {
+            const list = document.getElementById('active-mat-list');
+            list.innerHTML = "";
+            if(app.materials && app.materials.length > 0) {
+                app.materials.forEach(m => {
+                    list.innerHTML += `<div class="mat-list-item"><span>${m.name}</span> <span>${m.qty} ${m.unit} ✅</span></div>`;
+                });
+            }
+        }
+
         function initStart() {
             if(!app.user) return alert("Selectează numele!");
             const siteVal = document.getElementById('site-selector').value;
@@ -752,7 +836,7 @@
 
             watchID = navigator.geolocation.watchPosition(async (pos) => {
                 if(app.docId) {
-                    await window.db.collection('galabau.1st').doc(app.docId).update({
+                    await window.db.collection('galabau.final').doc(app.docId).update({
                         lat: pos.coords.latitude,
                         lon: pos.coords.longitude,
                         lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
@@ -774,19 +858,22 @@
         async function startShift(loc, lat, lon) {
             const now = Date.now();
             app.startT = now; app.locName = loc; app.totalPause = 0; app.isPaused = false; app.photoBase64 = null;
+            app.materials = []; // Reset materials on start
 
             let data = {
                 nume: app.user, santier: app.site, locatie: loc, lat: lat, lon: lon,
                 start: firebase.firestore.Timestamp.fromMillis(now),
                 status: 'activ', luna: new Date().getMonth()+1, an: new Date().getFullYear(), zi: new Date().getDate(),
-                lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
+                lastUpdate: firebase.firestore.FieldValue.serverTimestamp(),
+                materials: []
             };
             if(app.car) {
                 data.masina = app.car;
                 data.kmStart = app.kmStart;
             }
 
-            const doc = await window.db.collection('galabau.1st').add(data);
+            // ATENTIE: galabau.final
+            const doc = await window.db.collection('galabau.final').add(data);
             app.docId = doc.id;
             saveLocal(); restoreUI();
         }
@@ -795,10 +882,10 @@
             const now = Date.now();
             if(!app.isPaused) {
                 app.isPaused = true; app.pauseStartT = now;
-                window.db.collection('galabau.1st').doc(app.docId).update({status: 'pauza', pauseStart: firebase.firestore.Timestamp.fromMillis(now)});
+                window.db.collection('galabau.final').doc(app.docId).update({status: 'pauza', pauseStart: firebase.firestore.Timestamp.fromMillis(now)});
             } else {
                 app.isPaused = false; app.totalPause += (now - app.pauseStartT); app.pauseStartT = 0;
-                window.db.collection('galabau.1st').doc(app.docId).update({status: 'activ', pauseStart: null});
+                window.db.collection('galabau.final').doc(app.docId).update({status: 'activ', pauseStart: null});
             }
             saveLocal(); restoreUI();
         }
@@ -866,13 +953,13 @@
                 updateData.fuelLiters = parseFloat(document.getElementById('fuel-liters').value || 0);
             }
 
-            await window.db.collection('galabau.1st').doc(app.docId).update(updateData);
+            await window.db.collection('galabau.final').doc(app.docId).update(updateData);
             if(watchID) navigator.geolocation.clearWatch(watchID);
-            localStorage.removeItem('vt_1st'); location.reload();
+            localStorage.removeItem('vt_final'); location.reload();
         }
 
         async function forceClose(s) {
-            localStorage.removeItem('vt_1st'); location.reload();
+            localStorage.removeItem('vt_final'); location.reload();
         }
 
         function restoreUI() {
@@ -897,6 +984,10 @@
                 btn.innerText = "☕ PAUZĂ"; btn.className = "btn btn-pause";
                 badge.innerText = "ACTIV"; badge.className = "status-badge";
             }
+            
+            // Restore materials list if any
+            renderActiveMaterials();
+
             if(timerInt) clearInterval(timerInt);
             timerInt = setInterval(tick, 1000); tick();
         }
@@ -909,7 +1000,7 @@
             document.getElementById('pause-display').innerText = `Pauză totală: ${Math.round(pm/60000)}m`;
         }
 
-        function saveLocal() { localStorage.setItem('vt_1st', JSON.stringify(app)); }
+        function saveLocal() { localStorage.setItem('vt_final', JSON.stringify(app)); }
 
         // ADMIN
         function openAdmin() {
@@ -937,7 +1028,7 @@
             // GROUP MARKERS
             let locations = {};
 
-            window.db.collection('galabau.1st').where('status','in',['activ','pauza']).get().then(snaps => {
+            window.db.collection('galabau.final').where('status','in',['activ','pauza']).get().then(snaps => {
                 const group = new L.featureGroup();
                 snaps.forEach(doc => {
                     const d = doc.data();
@@ -974,7 +1065,7 @@
             const monthNames = ["IANUARIE","FEBRUARIE","MARTIE","APRILIE","MAI","IUNIE","IULIE","AUGUST","SEPTEMBRIE","OCTOMBRIE","NOIEMBRIE","DECEMBRIE"];
             document.getElementById('cal-month').innerText = `${monthNames[m]} ${y}`;
 
-            const snaps = await window.db.collection('galabau.1st').where('luna','==',m+1).where('an','==',y).get();
+            const snaps = await window.db.collection('galabau.final').where('luna','==',m+1).where('an','==',y).get();
             let dataMap = {}, totals = {}, siteTotals = {}, carTotals = {}, fuelTotals = {};
             snaps.forEach(doc => {
                 const d = doc.data();
@@ -1057,10 +1148,18 @@
                 let carInfo = item.masina ? `<br><span style="font-size:0.8rem; color:#d35400;">🚗 ${item.masina} (${item.kmParcursi||0} km)</span>` : '';
                 let fuelInfo = item.fuelLiters ? `<br><span style="font-size:0.8rem; color:#27ae60;">⛽ ${item.fuelLiters}L (${item.fuelType})</span>` : '';
                 let photoHtml = item.poza ? `<br><a href="${item.poza}" download="poza.jpg" style="font-size:0.7rem; color:blue">📷 Vezi Poză</a>` : '';
+                
+                let matHtml = "";
+                if(item.materials && item.materials.length > 0) {
+                    matHtml = `<br><span style="font-size:0.8rem; color:#8e44ad; font-weight:bold;">📦 Materiale:</span>`;
+                    item.materials.forEach(m => {
+                        matHtml += `<br><span style="font-size:0.8rem; color:#555;">- ${m.name}: ${m.qty} ${m.unit}</span>`;
+                    });
+                }
 
                 list.innerHTML += `
                     <div class="day-detail-item">
-                        <div><strong>${cleanText(item.nume)}</strong> <small>(${cleanText(item.santier)||'?'})</small>${carInfo}${fuelInfo}<br><small style="color:#777">${cleanText(item.locatie)}</small>${photoHtml}</div>
+                        <div><strong>${cleanText(item.nume)}</strong> <small>(${cleanText(item.santier)||'?'})</small>${carInfo}${fuelInfo}${matHtml}<br><small style="color:#777">${cleanText(item.locatie)}</small>${photoHtml}</div>
                         <div style="text-align:right">
                             ${pauzaText}
                             <span class="stat-badge ${colorClass}">${st}</span>
@@ -1132,7 +1231,7 @@
 
             const y = viewDate.getFullYear();
             const m = viewDate.getMonth() + 1;
-            const snaps = await window.db.collection('galabau.1st').where('luna','==',m).where('an','==',y).get();
+            const snaps = await window.db.collection('galabau.final').where('luna','==',m).where('an','==',y).get();
             
             if(snaps.empty) return alert("Nu sunt date.");
 
@@ -1140,7 +1239,7 @@
             snaps.forEach(doc => rawDocs.push(doc.data()));
             rawDocs.sort((a, b) => a.start.seconds - b.start.seconds);
 
-            let report = {}, siteReport = {}, carReport = {}, carLogs = {}, fuelDiesel=[], fuelBenz=[];
+            let report = {}, materialReport = {}, siteReport = {}, carReport = {}, carLogs = {}, fuelDiesel=[], fuelBenz=[];
             
             rawDocs.forEach(d => {
                 if(!report[d.nume]) report[d.nume] = [];
@@ -1149,6 +1248,20 @@
                 let s = d.santier || "-";
                 let car = d.masina ? `${d.masina} (${d.kmParcursi||0}km)` : "-";
                 
+                // --- SEPARATE MATERIAL LOGIC ---
+                if(d.materials && d.materials.length > 0) {
+                    if(!materialReport[d.nume]) materialReport[d.nume] = [];
+                    d.materials.forEach(m => {
+                        materialReport[d.nume].push([
+                            `${d.zi}/${d.luna}`,
+                            cleanText(s),
+                            cleanText(m.name),
+                            m.qty,
+                            m.unit
+                        ]);
+                    });
+                }
+
                 let hoursVal = d.ore || 0;
                 
                 report[d.nume].push({
@@ -1157,7 +1270,9 @@
                 });
                 
                 if(d.ore) {
-                    if(!siteReport[s]) siteReport[s] = 0; siteReport[s] += d.ore;
+                    let siteNameClean = d.santier || "Nespecificat";
+                    if(!siteReport[siteNameClean]) siteReport[siteNameClean] = 0; 
+                    siteReport[siteNameClean] += d.ore;
                 }
                 
                 if(d.masina && d.kmStop) {
@@ -1188,6 +1303,8 @@
                 yPos += 6;
                 let rows = report[name].map(r => r.row);
                 let totalH = report[name].reduce((acc, curr) => acc + curr.val, 0);
+                
+                // Main Hours Table
                 doc.autoTable({
                     startY: yPos,
                     head: [['Data', 'Santier', 'Masina', 'Locatie', 'Interval', 'Ore']],
@@ -1198,7 +1315,27 @@
                     foot: [['', '', '', '', 'TOTAL:', formatHuman(totalH * 3600000)]],
                     footStyles: { fillColor: [240, 240, 240], textColor: [0,0,0], fontStyle: 'bold', halign: 'center' }
                 });
-                yPos = doc.lastAutoTable.finalY + 15;
+                yPos = doc.lastAutoTable.finalY;
+
+                // --- MATERIAL TABLE FOR THIS WORKER (If any) ---
+                if(materialReport[name] && materialReport[name].length > 0) {
+                    yPos += 8; // small gap
+                    doc.setFontSize(10); doc.setTextColor(142, 68, 173); // Purple
+                    doc.text("Materiale Utilizate:", 14, yPos);
+                    yPos += 4;
+
+                    doc.autoTable({
+                        startY: yPos,
+                        head: [['Data', 'Santier', 'Material', 'Cant.', 'Unit.']],
+                        body: materialReport[name],
+                        theme: 'grid',
+                        styles: { halign: 'center', fontSize: 8 },
+                        headStyles: { halign: 'center', fillColor: [142, 68, 173] } // Purple
+                    });
+                    yPos = doc.lastAutoTable.finalY;
+                }
+
+                yPos += 15; // Gap before next worker
             });
 
             // TABLE 2: SANTIERE (ALBASTRU)
